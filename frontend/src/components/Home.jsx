@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Target, TrendingUp, Globe, Search, Loader2 } from 'lucide-react'
 import axios from 'axios'
+import { API_BASE_URL } from '../config'
 
 const Home = ({ appState, setAppState }) => {
   const navigate = useNavigate()
@@ -17,7 +18,7 @@ const Home = ({ appState, setAppState }) => {
         setIsLoading(true)
         try {
           console.log('Setting up channel...')
-          const response = await fetch('/api/channel/setup', {
+          const response = await fetch(`${API_BASE_URL}/api/channel/setup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -62,7 +63,7 @@ const Home = ({ appState, setAppState }) => {
     setSearching(true)
     try {
       // Search for channel
-      const searchResponse = await axios.post('/api/search/channel', {
+      const searchResponse = await axios.post(`${API_BASE_URL}/api/search/channel`, {
         query: channelSearchQuery,
         max_results: 1
       })
@@ -71,7 +72,7 @@ const Home = ({ appState, setAppState }) => {
         const channel = searchResponse.data.channels[0]
         
         // Setup this channel as primary
-        const setupResponse = await axios.post('/api/channel/setup', {
+        const setupResponse = await axios.post(`${API_BASE_URL}/api/channel/setup`, {
           channel_id: channel.channel_id,
           channel_name: channel.title
         })

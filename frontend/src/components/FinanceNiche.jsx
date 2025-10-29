@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Search, Loader2, TrendingUp, Target, CheckCircle, Circle } from 'lucide-react'
 import axios from 'axios'
+import { API_BASE_URL } from '../config'
 
 const FinanceNiche = ({ appState, setAppState }) => {
   const navigate = useNavigate()
@@ -65,7 +66,7 @@ const FinanceNiche = ({ appState, setAppState }) => {
 
     setSearching(true)
     try {
-      const endpoint = searchType === 'keyword' ? '/api/search/videos' : '/api/search/channel'
+      const endpoint = searchType === 'keyword' ? `${API_BASE_URL}/api/search/videos` : `${API_BASE_URL}/api/search/channel`
       const response = await axios.post(endpoint, {
         query: searchQuery,
         max_results: 30
@@ -107,7 +108,7 @@ const FinanceNiche = ({ appState, setAppState }) => {
         prompt: customPrompt
       })
 
-      const response = await axios.post('/api/suggest-format', {
+      const response = await axios.post(`${API_BASE_URL}/api/suggest-format`, {
         my_video_ids: selectedMyVideos.map(v => v.video_id),
         competitor_video_ids: selectedCompetitorVideos.map(v => v.video_id),
         additional_prompt: customPrompt.trim()

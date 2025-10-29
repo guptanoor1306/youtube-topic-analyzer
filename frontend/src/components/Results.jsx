@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Sparkles, TrendingUp, AlertCircle, BookOpen, MessageCircle, Send, Loader2 } from 'lucide-react'
 import axios from 'axios'
+import { API_BASE_URL } from '../config'
 
 const Results = ({ appState, setAppState }) => {
   const navigate = useNavigate()
@@ -28,7 +29,7 @@ const Results = ({ appState, setAppState }) => {
     setIsChatLoading(true)
 
     try {
-      const endpoint = appState.currentMode === 'suggest-series' ? '/api/suggest-series' : '/api/suggest-format'
+      const endpoint = appState.currentMode === 'suggest-series' ? `${API_BASE_URL}/api/suggest-series` : `${API_BASE_URL}/api/suggest-format`
       
       const requestBody = appState.currentMode === 'suggest-series' 
         ? {

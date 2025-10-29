@@ -42,7 +42,7 @@ const Zero1Videos = ({ appState, setAppState }) => {
         prompt: customPrompt
       })
 
-      const response = await axios.post('/api/suggest-series', {
+      const response = await axios.post(`${API_BASE_URL}/api/suggest-series`, {
         primary_channel_id: appState.primaryChannel.channel_id,
         selected_video_ids: selectedVideos.map(v => v.video_id),
         has_pdf_data: false,
