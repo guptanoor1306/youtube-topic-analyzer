@@ -28,16 +28,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize services
-youtube_service = YouTubeService(api_key=os.getenv("YOUTUBE_API_KEY"))
-ai_service = AIService(api_key=os.getenv("OPENAI_API_KEY"))
-pdf_service = PDFService()
+# Initialize services with error handling
+try:
+    youtube_api_key = os.getenv("YOUTUBE_API_KEY")
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    
+    if not youtube_api_key:
+        print("WARNING: YOUTUBE_API_KEY not set")
+    if not openai_api_key:
+        print("WARNING: OPENAI_API_KEY not set")
+    
+    youtube_service = YouTubeService(api_key=youtube_api_key)
+    ai_service = AIService(api_key=openai_api_key)
+    pdf_service = PDFService()
+    print("✅ All services initialized successfully")
+except Exception as e:
+    print(f"❌ Error initializing services: {e}")
+    raise
 
 
 # Health check endpoint for Railway
+@app.get("/")
+async def root():
+    """Root endpoint - Railway health check"""
+    return {"status": "healthy", "service": "YouTube Topic Analyzer API", "version": "1.0"}
+
+
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "YouTube Topic Analyzer API"}
+    """Detailed health check"""
+    return {
+        "status": "healthy", 
+        "service": "YouTube Topic Analyzer API",
+        "youtube_api": "configured" if os.getenv("YOUTUBE_API_KEY") else "missing",
+        "openai_api": "configured" if os.getenv("OPENAI_API_KEY") else "missing"
+    }
 
 
 # Request/Response Models
