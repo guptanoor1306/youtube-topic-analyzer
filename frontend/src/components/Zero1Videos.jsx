@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { API_BASE_URL } from '../config'
 import { CheckCircle, Circle, ArrowLeft, Sparkles, Loader2 } from 'lucide-react'
 
 const Zero1Videos = ({ appState, setAppState }) => {
