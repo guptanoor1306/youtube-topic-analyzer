@@ -113,57 +113,51 @@ const Home = ({ appState, setAppState }) => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-120px)] flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 py-12 px-4">
-      {/* Title */}
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">YouTube Topic Analyzer</h1>
-        <p className="text-gray-600">Select your analysis scope</p>
-      </div>
-
+    <div className="min-h-[calc(100vh-150px)] flex flex-col items-center justify-center py-6 px-4">
       {/* Channel Selection/Status */}
-      <div className="w-full max-w-2xl mb-8">
+      <div className="w-full max-w-2xl mb-6">
         {!showChannelSearch ? (
-          <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="bg-[#1a1a1a] rounded-lg shadow-lg border border-gray-800 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
-                    <span className="text-sm text-gray-600">Loading channel...</span>
+                    <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                    <span className="text-sm text-gray-400">Loading Zero1 by Zerodha...</span>
                   </>
                 ) : appState.primaryChannel ? (
                   <>
-                    <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full shadow-lg shadow-green-500/50"></div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-white">
                         {appState.primaryChannel.title}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-400">
                         {appState.availableVideos?.length || 0} videos loaded
                       </p>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                    <span className="text-sm text-gray-600">No channel loaded</span>
+                    <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
+                    <span className="text-sm text-gray-400">No channel loaded</span>
                   </>
                 )}
               </div>
               <button
                 onClick={() => setShowChannelSearch(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors border border-blue-500/30"
               >
                 <Search className="w-4 h-4" />
-                Change Channel
+                Use Another Channel
               </button>
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="bg-[#1a1a1a] rounded-lg shadow-lg border border-gray-800 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Search className="w-5 h-5 text-blue-600" />
-              <h3 className="font-semibold text-gray-900">Search for a Channel</h3>
+              <Search className="w-5 h-5 text-blue-400" />
+              <h3 className="font-semibold text-white">Search for a Channel</h3>
             </div>
             <div className="flex gap-2">
               <input
@@ -171,14 +165,14 @@ const Home = ({ appState, setAppState }) => {
                 value={channelSearchQuery}
                 onChange={(e) => setChannelSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleChannelSearch()}
-                placeholder="Enter channel name or ID (e.g., Zero1 by Zerodha)"
-                className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter channel name (e.g., Think School)"
+                className="flex-1 px-4 py-2 text-sm bg-[#0a0a0a] border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-500"
                 disabled={searching}
               />
               <button
                 onClick={handleChannelSearch}
                 disabled={searching}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium text-sm"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-600 transition-colors font-medium text-sm"
               >
                 {searching ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -191,7 +185,7 @@ const Home = ({ appState, setAppState }) => {
                   setShowChannelSearch(false)
                   setChannelSearchQuery('')
                 }}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-sm"
+                className="px-4 py-2 text-gray-400 hover:bg-gray-800 rounded-lg transition-colors text-sm"
               >
                 Cancel
               </button>
@@ -203,65 +197,64 @@ const Home = ({ appState, setAppState }) => {
         )}
       </div>
 
-      {/* Circles Container */}
-      <div className="relative w-full max-w-3xl aspect-square flex items-center justify-center p-8">
+      {/* Circles Container - Made Smaller */}
+      <div className="relative w-full max-w-xl aspect-square flex items-center justify-center p-4">
         
         {/* Outer Circle - Outside Niche (Disabled) */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 opacity-40 border-4 border-gray-300">
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full mb-4 text-center">
-            <Globe className="w-6 h-6 text-gray-400 mx-auto mb-1" />
-            <p className="text-gray-500 font-semibold text-sm">Outside Niche</p>
-            <p className="text-xs text-gray-400">Coming Soon</p>
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 opacity-30 border-4 border-gray-700">
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full mb-2 text-center">
+            <Globe className="w-5 h-5 text-gray-600 mx-auto mb-1" />
+            <p className="text-gray-500 font-semibold text-xs">Outside Niche</p>
+            <p className="text-xs text-gray-600">Coming Soon</p>
           </div>
         </div>
 
         {/* Middle Circle - Finance Niche */}
         <div 
           onClick={() => handleCircleClick('finance')}
-          className="absolute inset-[12%] rounded-full bg-gradient-to-br from-green-400 to-teal-500 shadow-xl cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center group border-4 border-white"
+          className="absolute inset-[15%] rounded-full bg-gradient-to-br from-green-500 to-teal-600 shadow-xl cursor-pointer hover:shadow-2xl hover:shadow-green-500/30 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center group border-4 border-gray-900"
         >
           <div className="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full text-center pointer-events-none">
-            <TrendingUp className="w-8 h-8 text-green-600 mx-auto mb-1 group-hover:scale-110 transition-transform" />
-            <p className="text-gray-900 font-bold text-base mb-0.5">Finance Niche</p>
-            <p className="text-gray-600 text-xs">Search & Select Videos</p>
+            <TrendingUp className="w-6 h-6 text-green-400 mx-auto mb-1 group-hover:scale-110 transition-transform" />
+            <p className="text-white font-bold text-sm mb-0.5">Finance Niche</p>
+            <p className="text-gray-300 text-xs">Search & Select Videos</p>
           </div>
         </div>
 
         {/* Inner Circle - Zero1 */}
         <div 
           onClick={() => handleCircleClick('zero1')}
-          className="absolute inset-[30%] rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-xl cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center group border-4 border-white"
+          className="absolute inset-[32%] rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-xl cursor-pointer hover:shadow-2xl hover:shadow-blue-500/30 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center group border-4 border-gray-900"
         >
           <div className="text-center px-4">
-            <Target className="w-12 h-12 text-white mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <h2 className="text-white font-bold text-xl mb-1">
+            <Target className="w-10 h-10 text-white mx-auto mb-1.5 group-hover:scale-110 transition-transform" />
+            <h2 className="text-white font-bold text-base mb-0.5">
               {appState.primaryChannel?.title.split(' ')[0] || 'Your Channel'}
             </h2>
-            <p className="text-white/90 text-xs">Your Channel</p>
-            <p className="text-white/70 text-xs mt-1">Top 30 Videos</p>
+            <p className="text-white/80 text-xs">Your Channel</p>
           </div>
         </div>
       </div>
 
       {/* Instructions */}
       <div className="text-center mt-4">
-        <p className="text-gray-600 text-sm mb-4">
+        <p className="text-gray-400 text-sm mb-3">
           Click on a circle to start analyzing videos
         </p>
         
         {/* Legend */}
-        <div className="flex gap-6 justify-center">
+        <div className="flex gap-4 justify-center">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600"></div>
-            <span className="text-xs text-gray-600">Your Content</span>
+            <div className="w-3 h-3 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-sm"></div>
+            <span className="text-xs text-gray-400">Your Content</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-green-400 to-teal-500"></div>
-            <span className="text-xs text-gray-600">Finance Industry</span>
+            <div className="w-3 h-3 rounded-full bg-gradient-to-br from-green-500 to-teal-600 shadow-sm"></div>
+            <span className="text-xs text-gray-400">Finance Industry</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 opacity-60"></div>
-            <span className="text-xs text-gray-400">Coming Soon</span>
+            <div className="w-3 h-3 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 opacity-60"></div>
+            <span className="text-xs text-gray-600">Coming Soon</span>
           </div>
         </div>
       </div>

@@ -82,16 +82,16 @@ const Zero1Videos = ({ appState, setAppState }) => {
         <div className="mb-6">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-2 text-gray-400 hover:text-white"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </button>
         </div>
-        <div className="text-center py-12 bg-white rounded-lg shadow-md">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-700 font-medium">Loading Zero1 videos...</p>
-          <p className="text-sm text-gray-500 mt-2">This may take a few seconds</p>
+        <div className="text-center py-12 bg-[#1a1a1a] rounded-lg shadow-lg border border-gray-800">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-500" />
+          <p className="text-white font-medium">Loading videos...</p>
+          <p className="text-sm text-gray-400 mt-2">This may take a few seconds</p>
         </div>
       </div>
     )
@@ -102,39 +102,39 @@ const Zero1Videos = ({ appState, setAppState }) => {
       <div className="mb-6">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b">
+      <div className="bg-[#1a1a1a] rounded-lg shadow-xl border border-gray-800 p-6">
+        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-800">
           <img
             src={appState.primaryChannel.thumbnail}
             alt={appState.primaryChannel.title}
-            className="w-16 h-16 rounded-full"
+            className="w-14 h-14 rounded-full ring-2 ring-blue-500/30"
           />
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-white">
               {appState.primaryChannel.title}
             </h2>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-400 text-sm">
               Top {appState.availableVideos.length} long-form videos (sorted by views)
             </p>
           </div>
         </div>
 
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Select Videos (1-5)
+          <h3 className="text-base font-semibold text-white mb-2">
+            Select Videos (1-15)
           </h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-gray-400 mb-4">
             Selected: {selectedVideos.length}/15
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-2">
             {appState.availableVideos?.map((video) => {
               const isSelected = selectedVideos.find(v => v.video_id === video.video_id)
               
@@ -142,24 +142,24 @@ const Zero1Videos = ({ appState, setAppState }) => {
                 <div
                   key={video.video_id}
                   onClick={() => toggleVideo(video)}
-                  className={`flex gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  className={`flex gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
                     isSelected
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-500 bg-blue-500/10'
+                      : 'border-gray-700 hover:border-gray-600 bg-[#0a0a0a]'
                   }`}
                 >
                   <img
                     src={video.thumbnail}
                     alt={video.title}
-                    className="w-32 h-20 object-cover rounded flex-shrink-0"
+                    className="w-28 h-16 object-cover rounded flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-900 text-sm line-clamp-2">
+                    <h4 className="font-medium text-white text-sm line-clamp-2">
                       {video.title}
                     </h4>
                     <div className="flex items-center gap-3 mt-1">
                       {video.duration_minutes && (
-                        <span className="text-xs text-blue-600 font-medium">
+                        <span className="text-xs text-blue-400 font-medium">
                           {video.duration_minutes} min
                         </span>
                       )}
@@ -172,9 +172,9 @@ const Zero1Videos = ({ appState, setAppState }) => {
                   </div>
                   <div className="flex-shrink-0">
                     {isSelected ? (
-                      <CheckCircle className="w-6 h-6 text-blue-600" />
+                      <CheckCircle className="w-6 h-6 text-blue-500" />
                     ) : (
-                      <Circle className="w-6 h-6 text-gray-400" />
+                      <Circle className="w-6 h-6 text-gray-600" />
                     )}
                   </div>
                 </div>
@@ -184,9 +184,9 @@ const Zero1Videos = ({ appState, setAppState }) => {
         </div>
 
         {selectedVideos.length > 0 && (
-          <div className="border-t pt-6 space-y-4">
+          <div className="border-t border-gray-800 pt-6 space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
+              <label className="block text-sm font-semibold text-white mb-2">
                 Your Custom Prompt *
               </label>
               <textarea
@@ -194,7 +194,7 @@ const Zero1Videos = ({ appState, setAppState }) => {
                 onChange={(e) => setCustomPrompt(e.target.value)}
                 placeholder="Example: Generate 5 video topic ideas based on these videos that focus on beginner-friendly financial education for millennials..."
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-white placeholder-gray-500"
               />
               <p className="mt-2 text-xs text-gray-500">
                 Be specific about what you want: topics, format, target audience, style, etc.
@@ -204,7 +204,7 @@ const Zero1Videos = ({ appState, setAppState }) => {
             <button
               onClick={handleGenerateSuggestions}
               disabled={loading || !customPrompt.trim()}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all"
             >
               {loading ? (
                 <>

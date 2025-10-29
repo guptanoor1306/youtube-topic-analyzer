@@ -73,12 +73,12 @@ const Results = ({ appState, setAppState }) => {
   if (!appState.results || !appState.currentMode) {
     return (
       <div className="max-w-4xl mx-auto text-center py-12">
-        <p className="text-gray-600">No results available. Please start from the beginning.</p>
+        <p className="text-gray-400">No results available. Please start from the beginning.</p>
         <button
           onClick={() => navigate('/')}
-          className="mt-4 text-blue-600 hover:text-blue-700"
+          className="mt-4 text-blue-400 hover:text-blue-300"
         >
-          Go to Channel Setup
+          Go to Home
         </button>
       </div>
     )
@@ -92,29 +92,29 @@ const Results = ({ appState, setAppState }) => {
         {/* Series Suggestions */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <BookOpen className="w-6 h-6 text-purple-600" />
-            <h3 className="text-2xl font-bold text-gray-900">Series Suggestions</h3>
+            <BookOpen className="w-5 h-5 text-purple-500" />
+            <h3 className="text-xl font-bold text-white">Series Suggestions</h3>
           </div>
           <div className="space-y-4">
             {series_suggestions?.map((series, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg p-6 border border-purple-100">
-                <h4 className="text-xl font-semibold text-gray-900 mb-2">
+              <div key={idx} className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 rounded-lg p-6 border border-purple-800/50">
+                <h4 className="text-lg font-semibold text-white mb-2">
                   {series.title}
                 </h4>
-                <p className="text-gray-700 mb-3">{series.description}</p>
+                <p className="text-gray-300 mb-3">{series.description}</p>
                 
                 <div className="mb-3">
-                  <h5 className="font-medium text-gray-900 mb-2">Episodes:</h5>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                  <h5 className="font-medium text-gray-200 mb-2">Episodes:</h5>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-gray-400">
                     {series.episodes?.map((episode, eIdx) => (
                       <li key={eIdx}>{episode}</li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-white/70 rounded p-3 mt-3">
-                  <p className="text-sm text-gray-700">
-                    <strong>Why this works:</strong> {series.rationale}
+                <div className="bg-[#0a0a0a]/50 rounded p-3 mt-3 border border-gray-800">
+                  <p className="text-sm text-gray-300">
+                    <strong className="text-white">Why this works:</strong> {series.rationale}
                   </p>
                 </div>
               </div>
@@ -126,15 +126,15 @@ const Results = ({ appState, setAppState }) => {
         {additional_topics && additional_topics.length > 0 && (
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-6 h-6 text-green-600" />
-              <h3 className="text-2xl font-bold text-gray-900">Additional Topics</h3>
+              <TrendingUp className="w-5 h-5 text-green-500" />
+              <h3 className="text-xl font-bold text-white">Additional Topics</h3>
             </div>
-            <div className="bg-green-50 rounded-lg p-6 border border-green-100">
+            <div className="bg-green-900/20 rounded-lg p-6 border border-green-800/50">
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {additional_topics.map((topic, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-green-600 mt-1">•</span>
-                    <span className="text-gray-700">{topic}</span>
+                    <span className="text-green-500 mt-1">•</span>
+                    <span className="text-gray-300">{topic}</span>
                   </li>
                 ))}
               </ul>
@@ -146,18 +146,18 @@ const Results = ({ appState, setAppState }) => {
         {content_gaps && content_gaps.length > 0 && (
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <AlertCircle className="w-6 h-6 text-orange-600" />
-              <h3 className="text-2xl font-bold text-gray-900">Content Gaps</h3>
+              <AlertCircle className="w-5 h-5 text-orange-500" />
+              <h3 className="text-xl font-bold text-white">Content Gaps</h3>
             </div>
-            <div className="bg-orange-50 rounded-lg p-6 border border-orange-100">
-              <p className="text-sm text-orange-800 mb-3">
+            <div className="bg-orange-900/20 rounded-lg p-6 border border-orange-800/50">
+              <p className="text-sm text-orange-300 mb-3">
                 Topics your audience is asking about but haven't been fully covered yet:
               </p>
               <ul className="space-y-2">
                 {content_gaps.map((gap, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-orange-600 mt-1">→</span>
-                    <span className="text-gray-700">{gap}</span>
+                    <span className="text-orange-500 mt-1">→</span>
+                    <span className="text-gray-300">{gap}</span>
                   </li>
                 ))}
               </ul>
@@ -177,25 +177,25 @@ const Results = ({ appState, setAppState }) => {
         {format_analysis && (
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-blue-600" />
-              <h3 className="text-2xl font-bold text-gray-900">Format Analysis</h3>
+              <Sparkles className="w-5 h-5 text-blue-500" />
+              <h3 className="text-xl font-bold text-white">Format Analysis</h3>
             </div>
-            <div className="bg-blue-50 rounded-lg p-6 border border-blue-100">
+            <div className="bg-blue-900/20 rounded-lg p-6 border border-blue-800/50">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold text-blue-900 mb-2">Your Channel Style</h4>
-                  <p className="text-gray-700 text-sm">{format_analysis.my_channel_style}</p>
+                  <h4 className="font-semibold text-blue-400 mb-2">Your Channel Style</h4>
+                  <p className="text-gray-300 text-sm">{format_analysis.my_channel_style}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-blue-900 mb-2">Competitor Style</h4>
-                  <p className="text-gray-700 text-sm">{format_analysis.competitor_style}</p>
+                  <h4 className="font-semibold text-blue-400 mb-2">Competitor Style</h4>
+                  <p className="text-gray-300 text-sm">{format_analysis.competitor_style}</p>
                 </div>
               </div>
               
               {format_analysis.key_differences && (
                 <div className="mt-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">Key Differences</h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                  <h4 className="font-semibold text-blue-400 mb-2">Key Differences</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
                     {format_analysis.key_differences.map((diff, idx) => (
                       <li key={idx}>{diff}</li>
                     ))}
@@ -210,32 +210,32 @@ const Results = ({ appState, setAppState }) => {
         {adaptations && adaptations.length > 0 && (
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-6 h-6 text-green-600" />
-              <h3 className="text-2xl font-bold text-gray-900">Adapted Video Ideas</h3>
+              <TrendingUp className="w-5 h-5 text-green-500" />
+              <h3 className="text-xl font-bold text-white">Adapted Video Ideas</h3>
             </div>
             <div className="space-y-4">
               {adaptations.map((adaptation, idx) => (
-                <div key={idx} className="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-6 border border-green-100">
+                <div key={idx} className="bg-gradient-to-br from-green-900/30 to-teal-900/30 rounded-lg p-6 border border-green-800/50">
                   <div className="mb-3">
-                    <p className="text-sm text-gray-600 mb-1">Original:</p>
-                    <p className="text-gray-800 font-medium">{adaptation.original_topic}</p>
+                    <p className="text-sm text-gray-400 mb-1">Original:</p>
+                    <p className="text-gray-200 font-medium">{adaptation.original_topic}</p>
                   </div>
                   
                   <div className="mb-3">
-                    <p className="text-sm text-gray-600 mb-1">Adapted Title:</p>
-                    <h4 className="text-xl font-semibold text-gray-900">{adaptation.adapted_title}</h4>
+                    <p className="text-sm text-gray-400 mb-1">Adapted Title:</p>
+                    <h4 className="text-lg font-semibold text-white">{adaptation.adapted_title}</h4>
                   </div>
 
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">Reframing:</p>
-                      <p className="text-sm text-gray-600">{adaptation.reframing}</p>
+                      <p className="text-sm font-medium text-gray-300 mb-1">Reframing:</p>
+                      <p className="text-sm text-gray-400">{adaptation.reframing}</p>
                     </div>
 
                     {adaptation.key_points && adaptation.key_points.length > 0 && (
                       <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">Key Points:</p>
-                        <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <p className="text-sm font-medium text-gray-300 mb-1">Key Points:</p>
+                        <ul className="list-disc list-inside text-sm text-gray-400 space-y-1">
                           {adaptation.key_points.map((point, pIdx) => (
                             <li key={pIdx}>{point}</li>
                           ))}
@@ -244,13 +244,13 @@ const Results = ({ appState, setAppState }) => {
                     )}
 
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">Format Changes:</p>
-                      <p className="text-sm text-gray-600">{adaptation.format_changes}</p>
+                      <p className="text-sm font-medium text-gray-300 mb-1">Format Changes:</p>
+                      <p className="text-sm text-gray-400">{adaptation.format_changes}</p>
                     </div>
 
-                    <div className="bg-white/70 rounded p-3">
-                      <p className="text-sm font-medium text-gray-700 mb-1">Unique Angle:</p>
-                      <p className="text-sm text-gray-600">{adaptation.unique_angle}</p>
+                    <div className="bg-[#0a0a0a]/50 rounded p-3 border border-gray-800">
+                      <p className="text-sm font-medium text-gray-300 mb-1">Unique Angle:</p>
+                      <p className="text-sm text-gray-400">{adaptation.unique_angle}</p>
                     </div>
                   </div>
                 </div>
@@ -263,15 +263,15 @@ const Results = ({ appState, setAppState }) => {
         {bonus_ideas && bonus_ideas.length > 0 && (
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-purple-600" />
-              <h3 className="text-2xl font-bold text-gray-900">Bonus Ideas</h3>
+              <Sparkles className="w-5 h-5 text-purple-500" />
+              <h3 className="text-xl font-bold text-white">Bonus Ideas</h3>
             </div>
-            <div className="bg-purple-50 rounded-lg p-6 border border-purple-100">
+            <div className="bg-purple-900/20 rounded-lg p-6 border border-purple-800/50">
               <ul className="space-y-2">
                 {bonus_ideas.map((idea, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-purple-600 mt-1">✨</span>
-                    <span className="text-gray-700">{idea}</span>
+                    <span className="text-purple-500 mt-1">✨</span>
+                    <span className="text-gray-300">{idea}</span>
                   </li>
                 ))}
               </ul>
@@ -286,20 +286,20 @@ const Results = ({ appState, setAppState }) => {
     <div className="max-w-5xl mx-auto">
       <div className="mb-6">
         <button
-          onClick={() => navigate('/select-videos')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          Back to Home
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="bg-[#1a1a1a] rounded-lg shadow-xl border border-gray-800 p-6">
+        <div className="mb-6 pb-6 border-b border-gray-800">
+          <h2 className="text-2xl font-bold text-white mb-2">
             {appState.currentMode === 'suggest-series' ? 'Series Suggestions' : 'Format Suggestions'}
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-400">
             {appState.currentMode === 'suggest-series'
               ? 'Based on your channel content and audience engagement'
               : 'Adapting competitor content to your channel format'}
@@ -309,11 +309,11 @@ const Results = ({ appState, setAppState }) => {
         {appState.currentMode === 'suggest-series' ? renderSeriesResults() : renderFormatResults()}
 
         {/* Chat Interface */}
-        <div className="mt-8 pt-6 border-t">
+        <div className="mt-8 pt-6 border-t border-gray-800">
           <div className="mb-4">
             <button
               onClick={() => setShowChat(!showChat)}
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium"
             >
               <MessageCircle className="w-5 h-5" />
               {showChat ? 'Hide' : 'Show'} Follow-up Chat
@@ -321,20 +321,20 @@ const Results = ({ appState, setAppState }) => {
           </div>
 
           {showChat && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="bg-[#0a0a0a]/50 rounded-lg p-4 mb-6 border border-gray-800">
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-blue-600" />
+                <h3 className="text-base font-semibold text-white mb-2 flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-blue-500" />
                   Continue the Conversation
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-400">
                   Ask follow-up questions or request refinements to the suggestions above
                 </p>
               </div>
 
               {/* Chat Messages */}
               {chatMessages.length > 0 && (
-                <div className="bg-white rounded-lg p-4 mb-4 max-h-96 overflow-y-auto space-y-3">
+                <div className="bg-[#1a1a1a] rounded-lg p-4 mb-4 max-h-96 overflow-y-auto space-y-3 border border-gray-800">
                   {chatMessages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -345,8 +345,8 @@ const Results = ({ appState, setAppState }) => {
                           msg.role === 'user'
                             ? 'bg-blue-600 text-white'
                             : msg.role === 'error'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-gray-200 text-gray-900'
+                            ? 'bg-red-900/50 text-red-200 border border-red-800'
+                            : 'bg-gray-800 text-gray-200'
                         }`}
                       >
                         {msg.role === 'assistant' ? (
@@ -361,8 +361,8 @@ const Results = ({ appState, setAppState }) => {
                   ))}
                   {isChatLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-gray-200 rounded-lg px-4 py-2">
-                        <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
+                      <div className="bg-gray-800 rounded-lg px-4 py-2">
+                        <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
                       </div>
                     </div>
                   )}
@@ -378,13 +378,13 @@ const Results = ({ appState, setAppState }) => {
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && !isChatLoading && handleChatSubmit()}
                   placeholder="Ask a follow-up question or request refinements..."
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-500"
                   disabled={isChatLoading}
                 />
                 <button
                   onClick={handleChatSubmit}
                   disabled={isChatLoading || !chatInput.trim()}
-                  className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors"
                 >
                   {isChatLoading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -414,7 +414,7 @@ const Results = ({ appState, setAppState }) => {
               })
               navigate('/')
             }}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-md font-medium hover:bg-blue-700 transition-colors"
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
           >
             Back to Home
           </button>

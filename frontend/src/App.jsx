@@ -19,9 +19,9 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <Header />
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-6">
           <Routes>
             <Route 
               path="/" 
