@@ -200,11 +200,11 @@ const Home = ({ appState, setAppState }) => {
       {/* Circles Container - Made Smaller */}
       <div className="relative w-full max-w-xl aspect-square flex items-center justify-center p-4">
         
-        {/* Outer Circle - Outside Niche (Disabled) */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 opacity-30 border-4 border-gray-700">
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full mb-2 text-center">
+        {/* Outer Circle - Outside Niche (Disabled) - Dashed Border */}
+        <div className="absolute inset-0 rounded-full border-4 border-dashed border-gray-700/50 bg-transparent">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-center">
             <Globe className="w-5 h-5 text-gray-600 mx-auto mb-1" />
-            <p className="text-gray-500 font-semibold text-xs">Outside Niche</p>
+            <p className="text-gray-500 font-semibold text-xs whitespace-nowrap">Outside Niche</p>
             <p className="text-xs text-gray-600">Coming Soon</p>
           </div>
         </div>
@@ -214,10 +214,10 @@ const Home = ({ appState, setAppState }) => {
           onClick={() => handleCircleClick('finance')}
           className="absolute inset-[15%] rounded-full bg-gradient-to-br from-green-500 to-teal-600 shadow-xl cursor-pointer hover:shadow-2xl hover:shadow-green-500/30 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center group border-4 border-gray-900"
         >
-          <div className="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full text-center pointer-events-none">
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-center pointer-events-none">
             <TrendingUp className="w-6 h-6 text-green-400 mx-auto mb-1 group-hover:scale-110 transition-transform" />
-            <p className="text-white font-bold text-sm mb-0.5">Finance Niche</p>
-            <p className="text-gray-300 text-xs">Search & Select Videos</p>
+            <p className="text-white font-bold text-sm mb-0.5 whitespace-nowrap">Finance Niche</p>
+            <p className="text-gray-300 text-xs whitespace-nowrap">Search & Select Videos</p>
           </div>
         </div>
 

@@ -21,7 +21,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:5173",
         "https://youtube-topic-analyzer.vercel.app",
-        "https://*.vercel.app"
+        "https://youtube-topic-analyzer-production.up.railway.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -32,6 +32,12 @@ app.add_middleware(
 youtube_service = YouTubeService(api_key=os.getenv("YOUTUBE_API_KEY"))
 ai_service = AIService(api_key=os.getenv("OPENAI_API_KEY"))
 pdf_service = PDFService()
+
+
+# Health check endpoint for Railway
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "YouTube Topic Analyzer API"}
 
 
 # Request/Response Models
