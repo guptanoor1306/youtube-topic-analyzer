@@ -224,24 +224,45 @@ async def search_channel(request: SearchRequest):
 
 @app.post("/api/suggest-series")
 async def suggest_series(request: SuggestSeriesRequest):
-    """Analyze videos and suggest series topics"""
+    """Analyze videos and suggest series topics - OPTIMIZED with parallel processing"""
     try:
-        # Get detailed data for selected videos
+        print(f"\n{'='*80}")
+        print(f"🎯 SUGGEST SERIES - Processing {len(request.selected_video_ids)} videos")
+        print(f"{'='*80}\n")
+        
+        # Fetch video data in PARALLEL (huge speed improvement!)
+        video_data_map = await youtube_service.get_video_data_parallel(
+            request.selected_video_ids, 
+            max_comments=100
+        )
+        
+        # Get video info in parallel as well
+        import asyncio
+        video_info_tasks = [youtube_service.get_video_info(vid) for vid in request.selected_video_ids]
+        video_infos = await asyncio.gather(*video_info_tasks, return_exceptions=True)
+        
+        # Combine data
         videos_data = []
-        for video_id in request.selected_video_ids:
-            video_info = await youtube_service.get_video_info(video_id)
-            transcript = await youtube_service.get_transcript(video_id)
-            comments = await youtube_service.get_comments(video_id, max_results=100)
-            
+        for video_id, video_info in zip(request.selected_video_ids, video_infos):
+            if isinstance(video_info, Exception):
+                print(f"⚠️ Skipping video {video_id} due to error: {video_info}")
+                continue
+                
+            video_data = video_data_map.get(video_id, {})
             videos_data.append({
-                "title": video_info["title"],
+                "title": video_info.get("title", "Unknown"),
                 "description": video_info.get("description", ""),
-                "transcript": transcript,
-                "comments": comments
+                "transcript": video_data.get("transcript"),
+                "comments": video_data.get("comments", [])
             })
+        
+        if not videos_data:
+            raise Exception("Failed to fetch data for any of the selected videos")
         
         # Get channel context
         channel_info = await youtube_service.get_channel_info(request.primary_channel_id)
+        
+        print(f"\n🤖 Sending {len(videos_data)} videos to AI for analysis...")
         
         # Generate suggestions using AI
         suggestions = await ai_service.suggest_series(
@@ -250,43 +271,78 @@ async def suggest_series(request: SuggestSeriesRequest):
             additional_prompt=request.additional_prompt
         )
         
+        print(f"✅ AI analysis complete!\n")
+        
         return {
             "success": True,
             "suggestions": suggestions
         }
     except Exception as e:
+        print(f"❌ Error in suggest_series: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/suggest-format")
 async def suggest_format(request: SuggestFormatRequest):
-    """Analyze competitor videos and suggest format conversions"""
+    """Analyze competitor videos and suggest format conversions - OPTIMIZED with parallel processing"""
     try:
-        # Get data for my videos
+        print(f"\n{'='*80}")
+        print(f"🎯 SUGGEST FORMAT - Processing {len(request.my_video_ids)} my videos + {len(request.competitor_video_ids)} competitor videos")
+        print(f"{'='*80}\n")
+        
+        import asyncio
+        
+        # Fetch ALL video data in parallel
+        my_data_task = youtube_service.get_video_data_parallel(request.my_video_ids, max_comments=10)
+        competitor_data_task = youtube_service.get_video_data_parallel(request.competitor_video_ids, max_comments=30)
+        
+        my_video_data_map, competitor_video_data_map = await asyncio.gather(
+            my_data_task, 
+            competitor_data_task
+        )
+        
+        # Fetch video info in parallel
+        all_video_ids = request.my_video_ids + request.competitor_video_ids
+        video_info_tasks = [youtube_service.get_video_info(vid) for vid in all_video_ids]
+        all_video_infos = await asyncio.gather(*video_info_tasks, return_exceptions=True)
+        
+        # Split the results
+        my_video_infos = all_video_infos[:len(request.my_video_ids)]
+        competitor_video_infos = all_video_infos[len(request.my_video_ids):]
+        
+        # Build my videos data
         my_videos_data = []
-        for video_id in request.my_video_ids:
-            video_info = await youtube_service.get_video_info(video_id)
-            transcript = await youtube_service.get_transcript(video_id)
-            
+        for video_id, video_info in zip(request.my_video_ids, my_video_infos):
+            if isinstance(video_info, Exception):
+                print(f"⚠️ Skipping my video {video_id} due to error: {video_info}")
+                continue
+                
+            video_data = my_video_data_map.get(video_id, {})
             my_videos_data.append({
-                "title": video_info["title"],
+                "title": video_info.get("title", "Unknown"),
                 "description": video_info.get("description", ""),
-                "transcript": transcript
+                "transcript": video_data.get("transcript")
             })
         
-        # Get data for competitor videos
+        # Build competitor videos data
         competitor_videos_data = []
-        for video_id in request.competitor_video_ids:
-            video_info = await youtube_service.get_video_info(video_id)
-            transcript = await youtube_service.get_transcript(video_id)
-            comments = await youtube_service.get_comments(video_id, max_results=30)
-            
+        for video_id, video_info in zip(request.competitor_video_ids, competitor_video_infos):
+            if isinstance(video_info, Exception):
+                print(f"⚠️ Skipping competitor video {video_id} due to error: {video_info}")
+                continue
+                
+            video_data = competitor_video_data_map.get(video_id, {})
             competitor_videos_data.append({
-                "title": video_info["title"],
+                "title": video_info.get("title", "Unknown"),
                 "description": video_info.get("description", ""),
-                "transcript": transcript,
-                "comments": comments
+                "transcript": video_data.get("transcript"),
+                "comments": video_data.get("comments", [])
             })
+        
+        if not my_videos_data or not competitor_videos_data:
+            raise Exception("Failed to fetch data for videos")
+        
+        print(f"\n🤖 Sending {len(my_videos_data)} + {len(competitor_videos_data)} videos to AI for format analysis...")
         
         # Generate format suggestions using AI
         suggestions = await ai_service.suggest_format(
@@ -295,11 +351,14 @@ async def suggest_format(request: SuggestFormatRequest):
             additional_prompt=request.additional_prompt
         )
         
+        print(f"✅ AI format analysis complete!\n")
+        
         return {
             "success": True,
             "suggestions": suggestions
         }
     except Exception as e:
+        print(f"❌ Error in suggest_format: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

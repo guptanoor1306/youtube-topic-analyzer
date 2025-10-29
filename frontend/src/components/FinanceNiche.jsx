@@ -20,6 +20,7 @@ const FinanceNiche = ({ appState, setAppState }) => {
   const [customPrompt, setCustomPrompt] = useState('')
   const [searching, setSearching] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [loadingStage, setLoadingStage] = useState('')
 
   useEffect(() => {
     // Load Zero1 videos from appState
@@ -101,12 +102,21 @@ const FinanceNiche = ({ appState, setAppState }) => {
     }
 
     setGenerating(true)
+    setLoadingStage('Preparing analysis...')
+    
     try {
       console.log('🚀 Sending format request:', {
         my_video_ids: selectedMyVideos.map(v => v.video_id),
         competitor_video_ids: selectedCompetitorVideos.map(v => v.video_id),
         prompt: customPrompt
       })
+
+      // Update loading stages
+      const totalVideos = selectedMyVideos.length + selectedCompetitorVideos.length
+      setTimeout(() => setLoadingStage(`Fetching data for ${totalVideos} videos in parallel...`), 500)
+      setTimeout(() => setLoadingStage('Analyzing your channel style...'), totalVideos * 800)
+      setTimeout(() => setLoadingStage('Analyzing competitor content...'), totalVideos * 1500)
+      setTimeout(() => setLoadingStage('AI is adapting formats to your style...'), totalVideos * 2200)
 
       const response = await axios.post(`${API_BASE_URL}/api/suggest-format`, {
         my_video_ids: selectedMyVideos.map(v => v.video_id),
@@ -115,6 +125,7 @@ const FinanceNiche = ({ appState, setAppState }) => {
       })
 
       console.log('✅ API Response:', response.data)
+      setLoadingStage('Success! Preparing format suggestions...')
 
       if (response.data.success && response.data.suggestions) {
         setAppState(prevState => ({
@@ -135,9 +146,10 @@ const FinanceNiche = ({ appState, setAppState }) => {
     } catch (err) {
       console.error('❌ Error generating suggestions:', err)
       const errorMsg = err.response?.data?.detail || err.message
-      alert(`Failed to generate suggestions: ${errorMsg}`)
+      alert(`Failed to generate suggestions: ${errorMsg}\n\nTip: Try selecting fewer videos (3-5 each) for faster processing.`)
     } finally {
       setGenerating(false)
+      setLoadingStage('')
     }
   }
 
@@ -374,7 +386,7 @@ const FinanceNiche = ({ appState, setAppState }) => {
               {generating ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Generating Format Suggestions...
+                  {loadingStage || 'Generating Format Suggestions...'}
                 </>
               ) : (
                 <>
@@ -383,6 +395,24 @@ const FinanceNiche = ({ appState, setAppState }) => {
                 </>
               )}
             </button>
+            
+            {generating && (
+              <div className="mt-4 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-green-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm text-green-300 font-medium">{loadingStage}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Processing {selectedMyVideos.length + selectedCompetitorVideos.length} videos ({selectedMyVideos.length} yours + {selectedCompetitorVideos.length} competitors). 
+                      Estimated time: {Math.ceil((selectedMyVideos.length + selectedCompetitorVideos.length) * 2.5)}-{Math.ceil((selectedMyVideos.length + selectedCompetitorVideos.length) * 4)} seconds.
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      💡 Tip: Selecting 3-5 videos from each gives optimal results with fastest processing
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -9,6 +9,7 @@ const Zero1Videos = ({ appState, setAppState }) => {
   const [selectedVideos, setSelectedVideos] = useState([])
   const [customPrompt, setCustomPrompt] = useState('')
   const [loading, setLoading] = useState(false)
+  const [loadingStage, setLoadingStage] = useState('')
 
   const toggleVideo = (video) => {
     const isSelected = selectedVideos.find(v => v.video_id === video.video_id)
@@ -36,12 +37,20 @@ const Zero1Videos = ({ appState, setAppState }) => {
     }
 
     setLoading(true)
+    setLoadingStage('Preparing request...')
+    
     try {
       console.log('🚀 Sending request:', {
         channel_id: appState.primaryChannel.channel_id,
         video_ids: selectedVideos.map(v => v.video_id),
         prompt: customPrompt
       })
+
+      // Update loading stages based on video count
+      const videoCount = selectedVideos.length
+      setTimeout(() => setLoadingStage(`Fetching transcripts for ${videoCount} videos...`), 500)
+      setTimeout(() => setLoadingStage('Analyzing audience comments...'), videoCount * 1000)
+      setTimeout(() => setLoadingStage('AI is generating personalized suggestions...'), videoCount * 2000)
 
       const response = await axios.post(`${API_BASE_URL}/api/suggest-series`, {
         primary_channel_id: appState.primaryChannel.channel_id,
@@ -51,6 +60,7 @@ const Zero1Videos = ({ appState, setAppState }) => {
       })
 
       console.log('✅ API Response:', response.data)
+      setLoadingStage('Success! Preparing results...')
 
       if (response.data.success && response.data.suggestions) {
         setAppState(prevState => ({
@@ -70,9 +80,10 @@ const Zero1Videos = ({ appState, setAppState }) => {
     } catch (err) {
       console.error('❌ Error generating suggestions:', err)
       const errorMsg = err.response?.data?.detail || err.message
-      alert(`Failed to generate suggestions: ${errorMsg}`)
+      alert(`Failed to generate suggestions: ${errorMsg}\n\nTip: Try selecting fewer videos (3-5) for faster processing.`)
     } finally {
       setLoading(false)
+      setLoadingStage('')
     }
   }
 
@@ -209,7 +220,7 @@ const Zero1Videos = ({ appState, setAppState }) => {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Generating Suggestions...
+                  {loadingStage || 'Generating Suggestions...'}
                 </>
               ) : (
                 <>
@@ -218,6 +229,23 @@ const Zero1Videos = ({ appState, setAppState }) => {
                 </>
               )}
             </button>
+            
+            {loading && (
+              <div className="mt-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm text-blue-300 font-medium">{loadingStage}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Processing {selectedVideos.length} video{selectedVideos.length > 1 ? 's' : ''}. This typically takes {Math.ceil(selectedVideos.length * 3)}-{Math.ceil(selectedVideos.length * 5)} seconds.
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      💡 Tip: Selecting 3-5 videos gives optimal results and fastest processing
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

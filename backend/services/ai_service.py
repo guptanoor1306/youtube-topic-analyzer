@@ -20,69 +20,52 @@ Subscribers: {channel_context['subscriber_count']}
         
         videos_summary = []
         for idx, video in enumerate(videos_data, 1):
-            # Get full transcript (up to 5000 chars for better context)
+            # Optimize: Reduce transcript to 3000 chars (saves tokens)
             transcript = video.get('transcript', 'N/A')
             if transcript and transcript != 'N/A':
-                transcript = transcript[:5000]
+                transcript = transcript[:3000]
             
             video_text = f"""
-════════════════════════════════════════════════════════════════
-VIDEO {idx}: {video['title']}
-════════════════════════════════════════════════════════════════
+═══ VIDEO {idx}: {video['title']} ═══
 
-DESCRIPTION:
-{video.get('description', 'N/A')[:500]}
+DESCRIPTION: {video.get('description', 'N/A')[:400]}
 
-FULL TRANSCRIPT:
-{transcript}
+TRANSCRIPT: {transcript}
 
-TOP AUDIENCE COMMENTS (showing what viewers are asking/discussing):
+TOP COMMENTS:
 """
-            # Get more comments for better audience insight
+            # Optimize: Reduce to 15 comments at 200 chars each
             if video.get('comments'):
-                for cidx, comment in enumerate(video['comments'][:20], 1):
-                    video_text += f"{cidx}. {comment['text'][:300]}\n"
+                for cidx, comment in enumerate(video['comments'][:15], 1):
+                    video_text += f"{cidx}. {comment['text'][:200]}\n"
             else:
-                video_text += "No comments available.\n"
+                video_text += "No comments.\n"
             
             videos_summary.append(video_text)
         
-        prompt = f"""You are a YouTube content strategist. Your task is to analyze SPECIFIC VIDEOS selected by the user and provide targeted suggestions.
+        prompt = f"""You are a YouTube content strategist analyzing specific videos to suggest targeted content ideas.
 
-CHANNEL CONTEXT:
-{channel_desc}
+CHANNEL: {channel_context['title']}
 
-SELECTED VIDEOS TO ANALYZE:
+SELECTED VIDEOS:
 {''.join(videos_summary)}
 
-================================================================================
-IMPORTANT INSTRUCTIONS:
-================================================================================
+TASK:
+1. Analyze transcripts for main topics & themes
+2. Review comments for audience questions & interests
+3. Find patterns across these specific videos
+4. Suggest series/topics DIRECTLY related to selected content
 
-1. Focus SPECIFICALLY on the content and themes in the SELECTED VIDEOS above
-2. Analyze the TRANSCRIPTS carefully to understand what topics were covered
-3. Analyze the COMMENTS to understand what the audience is asking about
-4. Look for patterns, questions, and interest areas across these specific videos
-5. Suggest topics that are SIMILAR to what was covered in these videos
-6. Identify gaps where viewers asked questions that weren't fully answered
+OUTPUT (3-5 series, 5-10 additional topics, 3-5 content gaps):
 
-Your suggestions should be:
-- DIRECTLY related to the topics in the selected videos
-- Based on ACTUAL audience questions from the comments
-- Similar in style and depth to the selected videos
-- Focused on expanding these specific themes, NOT generic channel suggestions
+1. **Series Suggestions**: Based on themes in selected videos
+   - Title + description
+   - 5-7 episode topics expanding on transcript/comment themes
+   - Rationale for this audience
 
-Provide:
+2. **Additional Topics**: Similar/related to selected video content
 
-1. **Series Suggestions** (3-5 series ideas based on these specific videos):
-   - Series title (related to themes in selected videos)
-   - Brief description
-   - 5-7 episode topics (expand on topics mentioned in transcripts/comments)
-   - Why this series would resonate with viewers of THESE specific videos
-
-2. **Additional Topics** - Topics that are SIMILAR or RELATED to what was covered in the selected videos
-
-3. **Content Gaps** - Specific questions/topics from the COMMENTS that viewers are asking about but weren't fully addressed in the videos
+3. **Content Gaps**: Unanswered questions from comments
 """
 
         # Add additional prompt if provided
@@ -116,11 +99,11 @@ Provide your response in JSON format:
             response = self.client.chat.completions.create(
                 model="gpt-4-turbo-preview",
                 messages=[
-                    {"role": "system", "content": "You are an expert YouTube content strategist. You analyze video transcripts, audience comments, and engagement patterns to suggest specific, actionable content ideas. You ONLY suggest topics that are directly related to the selected videos, never generic suggestions."},
+                    {"role": "system", "content": "You are a YouTube content strategist. Analyze selected videos' transcripts and comments to suggest specific, actionable content ideas directly related to them."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7,
-                max_tokens=2000,
+                max_tokens=2500,
                 response_format={"type": "json_object"}
             )
             
@@ -143,18 +126,12 @@ Provide your response in JSON format:
         for idx, video in enumerate(my_videos, 1):
             transcript = video.get('transcript', 'N/A')
             if transcript and transcript != 'N/A':
-                transcript = transcript[:3000]
+                transcript = transcript[:2500]  # Optimized
             
             video_text = f"""
-════════════════════════════════════════════════════════════════
-MY CHANNEL VIDEO {idx}: {video['title']}
-════════════════════════════════════════════════════════════════
-
-DESCRIPTION:
-{video.get('description', 'N/A')[:400]}
-
-TRANSCRIPT/CONTENT STYLE:
-{transcript}
+═══ MY VIDEO {idx}: {video['title']} ═══
+DESC: {video.get('description', 'N/A')[:300]}
+STYLE: {transcript}
 """
             my_videos_summary.append(video_text)
         
@@ -162,75 +139,48 @@ TRANSCRIPT/CONTENT STYLE:
         for idx, video in enumerate(competitor_videos, 1):
             transcript = video.get('transcript', 'N/A')
             if transcript and transcript != 'N/A':
-                transcript = transcript[:4000]
+                transcript = transcript[:3000]  # Optimized
             
             video_text = f"""
-════════════════════════════════════════════════════════════════
-COMPETITOR VIDEO {idx}: {video['title']}
-════════════════════════════════════════════════════════════════
-
-DESCRIPTION:
-{video.get('description', 'N/A')[:400]}
-
-FULL TRANSCRIPT:
-{transcript}
-
-AUDIENCE ENGAGEMENT (from comments - what viewers are saying/asking):
+═══ COMPETITOR {idx}: {video['title']} ═══
+DESC: {video.get('description', 'N/A')[:300]}
+TRANSCRIPT: {transcript}
+COMMENTS:
 """
             if video.get('comments'):
-                for cidx, comment in enumerate(video['comments'][:15], 1):
-                    video_text += f"{cidx}. {comment['text'][:250]}\n"
+                for cidx, comment in enumerate(video['comments'][:12], 1):  # Reduced to 12
+                    video_text += f"{cidx}. {comment['text'][:180]}\n"  # Reduced to 180 chars
             else:
-                video_text += "No comments available.\n"
+                video_text += "None\n"
             
             competitor_videos_summary.append(video_text)
         
-        prompt = f"""You are a YouTube content adaptation specialist. Your task is to analyze SPECIFIC competitor videos and suggest how to adapt them to match MY channel's style.
+        prompt = f"""Analyze competitor videos and adapt them to MY channel's style.
 
-MY CHANNEL'S STYLE (reference videos):
+MY CHANNEL STYLE:
 {''.join(my_videos_summary)}
 
-COMPETITOR VIDEOS TO ANALYZE AND ADAPT:
+COMPETITOR VIDEOS:
 {''.join(competitor_videos_summary)}
 
-================================================================================
-IMPORTANT INSTRUCTIONS:
-================================================================================
+TASK:
+1. Identify MY channel's style (tone, depth, structure, audience level)
+2. Extract competitor topics & audience questions from comments
+3. Adapt competitor content to MY style
 
-1. Carefully analyze the TRANSCRIPTS of MY videos to understand:
-   - Presentation style and tone
-   - Level of depth and complexity
-   - Structure and pacing
-   - Audience level (beginner/intermediate/expert)
+OUTPUT:
 
-2. Carefully analyze the TRANSCRIPTS of COMPETITOR videos to understand:
-   - What topics they cover
-   - What questions/interests their COMMENTS reveal
-   - What's working well for their audience
+1. **Format Analysis**: MY style vs competitor style, key differences
 
-3. Suggest how to ADAPT these specific competitor topics to MY channel's style
+2. **Adaptations** (for each competitor video):
+   - Original topic
+   - Adapted title for MY channel
+   - Reframing approach
+   - Key points to cover
+   - Format changes needed
+   - Unique angle
 
-Your adaptation should:
-- Keep the CORE TOPICS from competitor videos
-- Transform the PRESENTATION to match MY channel's style
-- Address the AUDIENCE QUESTIONS from competitor comments
-- Maintain consistency with MY channel's depth and tone
-
-Provide:
-
-1. **Format Analysis**: 
-   - MY channel's distinctive style (based on transcripts)
-   - COMPETITOR's style differences
-   - Key adaptation points needed
-
-2. **Video Adaptation Suggestions** (one for each competitor video):
-   - Original competitor video topic
-   - How to adapt it for MY channel's audience
-   - Specific angles to emphasize
-   - Format adjustments needed
-   - Questions from competitor comments to address
-
-3. **Bonus Ideas**: Additional related topics inspired by the competitor videos that would fit MY channel's style
+3. **Bonus Ideas**: Related topics fitting MY style
 """
 
         # Add additional prompt if provided
@@ -270,11 +220,11 @@ Provide your response in JSON format:
             response = self.client.chat.completions.create(
                 model="gpt-4-turbo-preview",
                 messages=[
-                    {"role": "system", "content": "You are an expert at analyzing YouTube content styles and adapting ideas between different channel formats. You analyze transcripts in detail to understand tone, depth, and presentation style, then suggest how to adapt competitor topics to match a specific channel's voice while maintaining audience appeal."},
+                    {"role": "system", "content": "You analyze YouTube content and adapt competitor ideas to match a channel's unique style and voice."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7,
-                max_tokens=2500,
+                max_tokens=3000,
                 response_format={"type": "json_object"}
             )
             
