@@ -12,6 +12,16 @@ from services.pdf_service import PDFService
 # Force load .env file and override any existing environment variables
 load_dotenv(override=True)
 
+# Print Railway environment info for debugging
+import sys
+print("=" * 60)
+print("🚀 STARTING YOUTUBE TOPIC ANALYZER")
+print("=" * 60)
+print(f"Python version: {sys.version}")
+print(f"PORT env var: {os.getenv('PORT', 'NOT SET')}")
+print(f"RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'NOT SET')}")
+print("=" * 60)
+
 app = FastAPI(title="YouTube Topic Identifier")
 
 # CORS middleware
