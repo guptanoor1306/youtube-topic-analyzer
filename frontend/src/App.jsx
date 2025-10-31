@@ -5,6 +5,9 @@ import Home from './components/Home'
 import Zero1Videos from './components/Zero1Videos'
 import FinanceNiche from './components/FinanceNiche'
 import Results from './components/Results'
+import TopicSelection from './components/TopicSelection'
+import TitleGeneration from './components/TitleGeneration'
+import ThumbnailGeneration from './components/ThumbnailGeneration'
 
 function App() {
   const [appState, setAppState] = useState({
@@ -14,7 +17,10 @@ function App() {
     selectedCompetitorVideos: [],
     currentMode: null,
     results: null,
-    customPrompt: ''
+    customPrompt: '',
+    selectedTopic: null,
+    titleSuggestions: [],
+    selectedTitle: null
   })
 
   return (
@@ -54,6 +60,33 @@ function App() {
               path="/results" 
               element={
                 <Results 
+                  appState={appState} 
+                  setAppState={setAppState} 
+                />
+              } 
+            />
+            <Route 
+              path="/topic-selection" 
+              element={
+                <TopicSelection 
+                  appState={appState} 
+                  setAppState={setAppState} 
+                />
+              } 
+            />
+            <Route 
+              path="/title-generation" 
+              element={
+                <TitleGeneration 
+                  appState={appState} 
+                  setAppState={setAppState} 
+                />
+              } 
+            />
+            <Route 
+              path="/thumbnail-generation" 
+              element={
+                <ThumbnailGeneration 
                   appState={appState} 
                   setAppState={setAppState} 
                 />

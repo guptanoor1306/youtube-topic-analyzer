@@ -260,21 +260,30 @@ class YouTubeService:
                 q=query,
                 type='video',
                 maxResults=max_results,
-                order='relevance'
+                order='relevance',
+                videoDuration='long'  # Filter for long videos
             )
             response = request.execute()
             
             videos = []
             for item in response['items']:
-                videos.append({
-                    "video_id": item['id']['videoId'],
-                    "title": item['snippet']['title'],
-                    "channel_name": item['snippet']['channelTitle'],
-                    "channel_id": item['snippet']['channelId'],
-                    "thumbnail": item['snippet']['thumbnails']['medium']['url'],
-                    "published_at": item['snippet']['publishedAt'],
-                    "description": item['snippet']['description']
-                })
+                try:
+                    # Skip if not a proper video result
+                    if 'id' not in item or 'videoId' not in item['id']:
+                        continue
+                    
+                    videos.append({
+                        "video_id": item['id']['videoId'],
+                        "title": item['snippet']['title'],
+                        "channel_name": item['snippet']['channelTitle'],
+                        "channel_id": item['snippet']['channelId'],
+                        "thumbnail": item['snippet']['thumbnails'].get('medium', {}).get('url', ''),
+                        "published_at": item['snippet']['publishedAt'],
+                        "description": item['snippet']['description']
+                    })
+                except (KeyError, TypeError) as e:
+                    print(f"⚠️ Skipping malformed search result: {e}")
+                    continue
             
             return videos
         except HttpError as e:

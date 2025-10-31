@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from services.youtube_service import YouTubeService
 from services.ai_service import AIService
 from services.pdf_service import PDFService
+from services.niche_service import NicheService
 
 # Force load .env file and override any existing environment variables
 load_dotenv(override=True)
@@ -51,6 +52,7 @@ try:
     youtube_service = YouTubeService(api_key=youtube_api_key)
     ai_service = AIService(api_key=openai_api_key)
     pdf_service = PDFService()
+    niche_service = NicheService()
     print("✅ All services initialized successfully")
 except Exception as e:
     print(f"❌ Error initializing services: {e}")
@@ -108,6 +110,24 @@ class SuggestFormatRequest(BaseModel):
     my_video_ids: List[str]
     competitor_video_ids: List[str]
     additional_prompt: Optional[str] = None
+
+
+class SearchSimilarTitlesRequest(BaseModel):
+    topic: str
+    max_results: Optional[int] = 30  # Increased to 30
+
+
+class GenerateThumbnailRequest(BaseModel):
+    topic: str
+    selected_thumbnail_urls: List[str]
+    prompt: str
+
+
+class SearchNicheTitlesRequest(BaseModel):
+    topic: str
+    use_niche: bool = True
+    videos_per_channel: Optional[int] = 3  # Reduced from 10 to 3 for speed
+    max_results: Optional[int] = 20
 
 
 @app.get("/")
@@ -359,6 +379,263 @@ async def suggest_format(request: SuggestFormatRequest):
         }
     except Exception as e:
         print(f"❌ Error in suggest_format: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/search-similar-titles")
+async def search_similar_titles(request: SearchSimilarTitlesRequest):
+    """Search YouTube for similar titles using AI to understand topic essence"""
+    try:
+        print(f"\n{'='*80}")
+        print(f"🔍 SEARCHING SIMILAR TITLES - Topic: {request.topic}")
+        print(f"{'='*80}\n")
+        
+        # Step 1: Use AI to extract the essence and best search keywords
+        print(f"🤖 Using AI to understand topic essence...")
+        keyword_data = await ai_service.extract_search_keywords(request.topic)
+        
+        print(f"📌 Essence: {keyword_data.get('essence', 'N/A')}")
+        print(f"🔑 Keywords: {keyword_data.get('primary_keywords', [])}")
+        print(f"🔍 Search queries: {keyword_data.get('search_queries', [])}\n")
+        
+        # Step 2: Search using multiple relevant queries
+        import asyncio
+        all_videos = {}
+        
+        search_queries = keyword_data.get('search_queries', [request.topic])[:2]  # Use top 2 queries for speed
+        
+        print(f"🔎 Searching with {len(search_queries)} optimized queries...")
+        search_tasks = [
+            youtube_service.search_videos(query=query, max_results=20)  # 2 queries × 20 = 40 videos
+            for query in search_queries
+        ]
+        search_results_list = await asyncio.gather(*search_tasks, return_exceptions=True)
+        
+        # Combine and deduplicate results
+        for search_results in search_results_list:
+            if isinstance(search_results, Exception):
+                continue
+            for video in search_results:
+                video_id = video.get("video_id")
+                if video_id and video_id not in all_videos:
+                    all_videos[video_id] = video
+        
+        print(f"📊 Found {len(all_videos)} unique videos")
+        
+        # Step 3: Get detailed info for all videos
+        video_ids = list(all_videos.keys())
+        video_info_tasks = [youtube_service.get_video_info(vid) for vid in video_ids]
+        video_infos = await asyncio.gather(*video_info_tasks, return_exceptions=True)
+        
+        # Step 4: Filter and score videos
+        long_form_videos = []
+        primary_keywords = keyword_data.get('primary_keywords', [])
+        
+        # Create a list of all relevant words to check against
+        all_keyword_words = set()
+        for keyword in primary_keywords:
+            all_keyword_words.update(keyword.lower().split())
+        
+        for video_info in video_infos:
+            if isinstance(video_info, Exception):
+                continue
+            
+            # Parse duration
+            duration_minutes = youtube_service.parse_duration_to_minutes(video_info.get('duration', 'PT0S'))
+            
+            # Only include videos > 10 minutes
+            if duration_minutes > 10:
+                title_lower = video_info["title"].lower()
+                description_lower = video_info.get("description", "").lower()
+                
+                # IMPROVED RELEVANCE SCORING - Focus on keyword matching
+                relevance_score = 0
+                matched_keywords = []
+                
+                # Strategy 1: Check for exact phrase matches (HIGHEST PRIORITY)
+                for keyword in primary_keywords:
+                    keyword_lower = keyword.lower()
+                    if keyword_lower in title_lower:
+                        # Exact phrase in title = VERY relevant
+                        relevance_score += 100
+                        matched_keywords.append(keyword)
+                    elif keyword_lower in description_lower:
+                        # Exact phrase in description = moderately relevant
+                        relevance_score += 20
+                        matched_keywords.append(keyword)
+                
+                # Strategy 2: Check for individual keyword words in title
+                title_words = set(title_lower.split())
+                common_words = {'the', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'and', 'or', 'but', 'is', 'are', 'was', 'were'}
+                meaningful_keyword_words = all_keyword_words - common_words
+                word_matches = title_words.intersection(meaningful_keyword_words)
+                
+                # Each meaningful word match adds to score
+                relevance_score += len(word_matches) * 10
+                
+                # Strategy 3: Check essence match (core concept)
+                essence_lower = keyword_data.get('essence', '').lower()
+                essence_words = set(essence_lower.split()) - common_words
+                essence_matches = title_words.intersection(essence_words)
+                relevance_score += len(essence_matches) * 15
+                
+                # FILTER: Only include videos with some relevance
+                if relevance_score < 10:
+                    continue  # Skip videos with low/no relevance
+                
+                video_score = relevance_score
+                
+                long_form_videos.append({
+                    "video_id": video_info["video_id"],
+                    "title": video_info["title"],
+                    "channel_name": video_info["channel_name"],
+                    "thumbnail": video_info["thumbnail"],
+                    "view_count": int(video_info.get("view_count", 0)),
+                    "duration_minutes": round(duration_minutes, 1),
+                    "published_at": video_info["published_at"],
+                    "relevance_score": video_score
+                })
+        
+        # Sort ONLY by relevance score (not views!)
+        # This ensures most relevant titles come first, regardless of popularity
+        long_form_videos.sort(key=lambda x: x["relevance_score"], reverse=True)
+        
+        # Remove relevance_score from final output and take top results
+        top_videos = []
+        for video in long_form_videos[:request.max_results]:
+            video_copy = video.copy()
+            video_copy.pop("relevance_score", None)
+            top_videos.append(video_copy)
+        
+        print(f"✅ Returning {len(top_videos)} relevant long-form videos\n")
+        
+        return {
+            "success": True,
+            "topic": request.topic,
+            "essence": keyword_data.get('essence', ''),
+            "keywords_used": primary_keywords,
+            "videos": top_videos,
+            "count": len(top_videos)
+        }
+    except Exception as e:
+        print(f"❌ Error in search_similar_titles: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/search-niche-titles")
+async def search_niche_titles(request: SearchNicheTitlesRequest):
+    """Search for titles within your curated niche channels"""
+    try:
+        print(f"\n{'='*80}")
+        print(f"🎯 NICHE TITLE SEARCH - Topic: {request.topic}")
+        print(f"{'='*80}\n")
+        
+        # Step 1: Extract essence and keywords using AI
+        print(f"🤖 Using AI to understand topic essence...")
+        keyword_data = await ai_service.extract_search_keywords(request.topic)
+        
+        print(f"📌 Essence: {keyword_data.get('essence', 'N/A')}")
+        print(f"🔑 Keywords: {keyword_data.get('primary_keywords', [])}\n")
+        
+        # Step 2: Quick search from top 30 channels (priority channels)
+        # This gives fast results: 30 channels × 3 videos = ~90 videos in 5-10 seconds
+        max_channels = min(30, len(niche_service.channels))
+        print(f"📺 Quick search: Fetching from top {max_channels} priority channels...")
+        print(f"   (30 channels × 3 videos = ~90 videos for fast results)")
+        niche_videos = await niche_service.fetch_videos_from_niche(
+            youtube_service=youtube_service,
+            videos_per_channel=request.videos_per_channel,
+            min_duration_minutes=10,
+            max_channels=max_channels
+        )
+        
+        if not niche_videos:
+            return {
+                "success": False,
+                "error": "No videos found in niche channels. Please add channels to niche_channels.json",
+                "topic": request.topic,
+                "videos": [],
+                "count": 0
+            }
+        
+        # Step 3: Filter videos by relevance to topic
+        primary_keywords = keyword_data.get('primary_keywords', [request.topic])
+        filtered_videos = niche_service.filter_videos_by_keywords(
+            videos=niche_videos,
+            keywords=primary_keywords,
+            top_n=request.max_results
+        )
+        
+        print(f"✅ Returning {len(filtered_videos)} relevant niche videos\n")
+        
+        return {
+            "success": True,
+            "topic": request.topic,
+            "essence": keyword_data.get('essence', ''),
+            "keywords_used": primary_keywords,
+            "niche_channels_count": len(niche_service.channels),
+            "total_videos_searched": len(niche_videos),
+            "videos": filtered_videos,
+            "count": len(filtered_videos)
+        }
+        
+    except Exception as e:
+        print(f"❌ Error in search_niche_titles: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/niche-channels")
+async def get_niche_channels():
+    """Get the list of niche channels"""
+    try:
+        return {
+            "success": True,
+            "channels": niche_service.channels,
+            "count": len(niche_service.channels)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/niche-channels/reload")
+async def reload_niche_channels():
+    """Reload niche channels from JSON file"""
+    try:
+        niche_service.reload_channels()
+        return {
+            "success": True,
+            "message": f"Reloaded {len(niche_service.channels)} channels",
+            "count": len(niche_service.channels)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/generate-thumbnail")
+async def generate_thumbnail(request: GenerateThumbnailRequest):
+    """Generate a thumbnail using AI based on topic, selected thumbnails, and user prompt"""
+    try:
+        print(f"\n{'='*80}")
+        print(f"🎨 GENERATING THUMBNAIL - Topic: {request.topic}")
+        print(f"Selected thumbnails: {len(request.selected_thumbnail_urls)}")
+        print(f"{'='*80}\n")
+        
+        # Generate thumbnail using AI service
+        thumbnail_result = await ai_service.generate_thumbnail(
+            topic=request.topic,
+            reference_thumbnails=request.selected_thumbnail_urls,
+            user_prompt=request.prompt
+        )
+        
+        print(f"✅ Thumbnail generated!\n")
+        
+        return {
+            "success": True,
+            "thumbnail_url": thumbnail_result["thumbnail_url"],
+            "revised_prompt": thumbnail_result.get("revised_prompt", "")
+        }
+    except Exception as e:
+        print(f"❌ Error in generate_thumbnail: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

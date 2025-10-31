@@ -1,6 +1,8 @@
 from typing import List, Dict, Optional
 from openai import OpenAI
 import json
+import base64
+import httpx
 
 
 class AIService:
@@ -237,6 +239,119 @@ Provide your response in JSON format:
                 "format_analysis": {},
                 "adaptations": [],
                 "bonus_ideas": [],
+                "error": str(e)
+            }
+    
+    async def extract_search_keywords(self, topic: str) -> Dict:
+        """Extract the essence and best search keywords from a topic using AI"""
+        
+        try:
+            prompt = f"""Analyze this video topic and extract the core essence and best search keywords:
+
+Topic: "{topic}"
+
+Your task:
+1. Identify the CORE CONCEPT (what is this really about?)
+2. Extract 3-5 KEY SEARCH TERMS that capture the essence
+3. Generate 2-3 ALTERNATIVE SEARCH QUERIES that would find similar content
+
+Think about:
+- What is the main subject?
+- What is the key theme or problem being addressed?
+- What are related concepts viewers would search for?
+
+Provide response in JSON format:
+{{
+  "essence": "Core concept in 1-2 sentences",
+  "primary_keywords": ["keyword1", "keyword2", "keyword3"],
+  "search_queries": ["search query 1", "search query 2", "search query 3"]
+}}
+
+Examples:
+- Topic: "The True Cost of Owning a Car in India"
+  Result: {{
+    "essence": "Understanding the complete financial burden of car ownership including hidden costs",
+    "primary_keywords": ["car ownership costs", "car expenses", "cost of owning car", "car maintenance expenses"],
+    "search_queries": ["true cost of car ownership", "hidden car expenses", "car ownership budget breakdown"]
+  }}
+
+- Topic: "How to Build Passive Income with Dividend Stocks"
+  Result: {{
+    "essence": "Creating consistent income streams through dividend-paying investments",
+    "primary_keywords": ["dividend investing", "passive income stocks", "dividend portfolio"],
+    "search_queries": ["dividend investing for beginners", "building dividend portfolio", "passive income from dividends"]
+  }}
+"""
+
+            response = self.client.chat.completions.create(
+                model="gpt-4-turbo-preview",
+                messages=[
+                    {"role": "system", "content": "You are an expert at understanding content topics and extracting search keywords."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=500,
+                response_format={"type": "json_object"}
+            )
+            
+            result = json.loads(response.choices[0].message.content)
+            return result
+            
+        except Exception as e:
+            print(f"❌ Error extracting keywords: {str(e)}")
+            # Fallback to simple keyword extraction
+            return {
+                "essence": topic,
+                "primary_keywords": [topic],
+                "search_queries": [topic]
+            }
+    
+    async def generate_thumbnail(self, topic: str, reference_thumbnails: List[str], user_prompt: str) -> Dict:
+        """Generate a thumbnail using DALL-E based on topic, reference thumbnails, and user prompt"""
+        
+        try:
+            # Build the prompt for DALL-E
+            dalle_prompt = f"""Create a YouTube thumbnail for a video about: {topic}
+
+User requirements: {user_prompt}
+
+Style guidelines:
+- Bold, eye-catching design
+- Clear, readable text if any
+- High contrast colors
+- Professional YouTube thumbnail aesthetic
+- 16:9 aspect ratio
+- Engaging visual elements
+
+Make it attention-grabbing and optimized for YouTube."""
+
+            print(f"🎨 Generating thumbnail with DALL-E...")
+            print(f"Prompt: {dalle_prompt[:200]}...")
+            
+            # Generate thumbnail using DALL-E
+            response = self.client.images.generate(
+                model="dall-e-3",
+                prompt=dalle_prompt,
+                size="1792x1024",  # Closest to 16:9 ratio
+                quality="standard",
+                n=1,
+            )
+            
+            thumbnail_url = response.data[0].url
+            revised_prompt = getattr(response.data[0], 'revised_prompt', dalle_prompt)
+            
+            print(f"✅ Thumbnail generated successfully!")
+            
+            return {
+                "thumbnail_url": thumbnail_url,
+                "revised_prompt": revised_prompt,
+                "original_prompt": dalle_prompt
+            }
+            
+        except Exception as e:
+            print(f"❌ DALL-E API error: {str(e)}")
+            return {
+                "thumbnail_url": None,
                 "error": str(e)
             }
 

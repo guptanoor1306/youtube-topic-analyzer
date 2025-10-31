@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Sparkles, TrendingUp, AlertCircle, BookOpen, MessageCircle, Send, Loader2 } from 'lucide-react'
+import { ArrowLeft, Sparkles, TrendingUp, AlertCircle, BookOpen, MessageCircle, Send, Loader2, ArrowRight, Image } from 'lucide-react'
 import axios from 'axios'
 import { API_BASE_URL } from '../config'
 
@@ -308,8 +308,34 @@ const Results = ({ appState, setAppState }) => {
 
         {appState.currentMode === 'suggest-series' ? renderSeriesResults() : renderFormatResults()}
 
-        {/* Chat Interface */}
+        {/* Title & Thumbnail Generation Button */}
         <div className="mt-8 pt-6 border-t border-gray-800">
+          <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 rounded-lg p-6 border border-purple-800/50 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 p-3 bg-purple-600/20 rounded-lg">
+                <Image className="w-6 h-6 text-purple-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Ready to Create Titles & Thumbnails?
+                </h3>
+                <p className="text-gray-300 mb-4">
+                  Continue your journey by selecting a topic and generating optimized titles and eye-catching thumbnails using AI
+                </p>
+                <button
+                  onClick={() => navigate('/topic-selection')}
+                  className="bg-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center gap-2"
+                >
+                  Generate Titles & Thumbnails
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Chat Interface */}
+        <div className="mt-6 pt-6 border-t border-gray-800">
           <div className="mb-4">
             <button
               onClick={() => setShowChat(!showChat)}
