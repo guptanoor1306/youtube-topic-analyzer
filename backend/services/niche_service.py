@@ -87,8 +87,9 @@ class NicheService:
         # Execute all fetches in parallel
         results = await asyncio.gather(*tasks, return_exceptions=True)
         
-        # Combine results
-        for channel, videos in zip(self.channels, results):
+        # Combine results - IMPORTANT: zip with channels_to_fetch, not self.channels
+        # to match the correct channels with their results
+        for channel, videos in zip(channels_to_fetch, results):
             if isinstance(videos, Exception):
                 print(f"⚠️  Error fetching from {channel.get('channel_name', 'Unknown')}: {videos}")
                 continue

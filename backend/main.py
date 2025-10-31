@@ -130,14 +130,7 @@ class SearchNicheTitlesRequest(BaseModel):
     max_results: Optional[int] = 20
 
 
-@app.get("/")
-async def root():
-    return {"message": "YouTube Topic Identifier API", "status": "running"}
-
-
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
+# Duplicate routes removed - using detailed versions above at lines 63-77
 
 
 @app.post("/api/channel/setup")
