@@ -74,7 +74,7 @@ const Home = ({ appState, setAppState }) => {
         }))
 
         // Navigate to video selection
-        navigate('/select-videos')
+        navigate('/video-selection')
       } else {
         alert('Error fetching videos. Please try again.')
       }
