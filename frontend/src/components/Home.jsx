@@ -8,6 +8,9 @@ const Home = ({ appState, setAppState }) => {
   const navigate = useNavigate()
   const [channelSearchQuery, setChannelSearchQuery] = useState('')
   const [searching, setSearching] = useState(false)
+  const [channelResults, setChannelResults] = useState([])
+  const [showChannelDropdown, setShowChannelDropdown] = useState(false)
+  const [settingUpChannel, setSettingUpChannel] = useState(false)
 
   // No auto-setup needed - user will search and select
 
@@ -19,14 +22,38 @@ const Home = ({ appState, setAppState }) => {
 
     setSearching(true)
     try {
-      // Search for channel
+      // Search for channels - get up to 5 results
       const searchResponse = await axios.post(`${API_BASE_URL}/api/search/channel`, {
         query: channelSearchQuery,
-        max_results: 1
+        max_results: 5
       })
 
       if (searchResponse.data.channels && searchResponse.data.channels.length > 0) {
-        const channel = searchResponse.data.channels[0]
+        const channels = searchResponse.data.channels
+        
+        if (channels.length === 1) {
+          // Only one result, proceed directly
+          await selectChannel(channels[0])
+        } else {
+          // Multiple results, show dropdown
+          setChannelResults(channels)
+          setShowChannelDropdown(true)
+        }
+      } else {
+        alert('No channels found. Try a different search term.')
+      }
+    } catch (error) {
+      console.error('Channel search error:', error)
+      alert('Error searching for channel. Please try again.')
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  const selectChannel = async (channel) => {
+    setSettingUpChannel(true)
+    setShowChannelDropdown(false)
+    try {
         
         // Setup channel and fetch top 100 videos
         const setupResponse = await axios.post(`${API_BASE_URL}/api/channel/setup`, {
@@ -91,13 +118,18 @@ const Home = ({ appState, setAppState }) => {
             />
             <button
               onClick={handleChannelSearch}
-              disabled={searching || !channelSearchQuery.trim()}
+              disabled={searching || settingUpChannel || !channelSearchQuery.trim()}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium text-base flex items-center gap-2"
             >
               {searching ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
                   Searching...
+                </>
+              ) : settingUpChannel ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Loading videos...
                 </>
               ) : (
                 'Search'
@@ -108,6 +140,60 @@ const Home = ({ appState, setAppState }) => {
           <p className="mt-3 text-sm text-gray-500">
             We'll fetch the top 100 videos from this channel for analysis
           </p>
+
+          {/* Channel Selection Dropdown */}
+          {showChannelDropdown && channelResults.length > 0 && (
+            <div className="mt-4 bg-white rounded-lg border-2 border-blue-500 shadow-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Select a Channel ({channelResults.length} found)
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowChannelDropdown(false)
+                    setChannelResults([])
+                  }}
+                  className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {channelResults.map((channel) => (
+                  <button
+                    key={channel.channel_id}
+                    onClick={() => selectChannel(channel)}
+                    disabled={settingUpChannel}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <img
+                      src={channel.thumbnail}
+                      alt={channel.title}
+                      className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 truncate">
+                        {channel.title}
+                      </p>
+                      {channel.description && (
+                        <p className="text-sm text-gray-500 truncate">
+                          {channel.description}
+                        </p>
+                      )}
+                      {channel.subscriber_count && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          {parseInt(channel.subscriber_count).toLocaleString()} subscribers
+                        </p>
+                      )}
+                    </div>
+                    {settingUpChannel && (
+                      <Loader2 className="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
