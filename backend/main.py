@@ -28,7 +28,7 @@ print("=" * 60)
 
 app = FastAPI(title="YouTube Topic Identifier")
 
-# CORS middleware
+# CORS middleware - Allow all Vercel deployments and Railway
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -37,6 +37,7 @@ app.add_middleware(
         "https://youtube-topic-analyzer.vercel.app",
         "https://youtube-topic-analyzer-production.up.railway.app"
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel preview deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
