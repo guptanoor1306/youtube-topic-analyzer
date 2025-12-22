@@ -54,32 +54,35 @@ const Home = ({ appState, setAppState }) => {
     setSettingUpChannel(true)
     setShowChannelDropdown(false)
     try {
-        
-        // Setup channel and fetch top 100 videos
-        const setupResponse = await axios.post(`${API_BASE_URL}/api/channel/setup`, {
-          channel_id: channel.channel_id,
-          channel_name: channel.title,
-          max_videos: 100
-        })
+      // Setup channel and fetch top 100 videos
+      const setupResponse = await axios.post(`${API_BASE_URL}/api/channel/setup`, {
+        channel_id: channel.channel_id,
+        channel_name: channel.title,
+        max_results: 100
+      })
 
-        if (setupResponse.data.success) {
-          setAppState(prevState => ({
-            ...prevState,
-            primaryChannel: setupResponse.data.channel,
-            availableVideos: setupResponse.data.recent_videos
-          }))
-          
-          // Navigate to video selection
-          navigate('/video-selection')
-        }
+      if (setupResponse.data.success) {
+        // Save to app state
+        setAppState(prev => ({
+          ...prev,
+          primaryChannel: {
+            id: channel.channel_id,
+            name: channel.title,
+            thumbnail: channel.thumbnail
+          },
+          availableVideos: setupResponse.data.videos || []
+        }))
+
+        // Navigate to video selection
+        navigate('/select-videos')
       } else {
-        alert('No channel found. Please try a different search term.')
+        alert('Error fetching videos. Please try again.')
       }
-    } catch (err) {
-      console.error('Channel search error:', err)
-      alert('Failed to search channel. Please try again.')
+    } catch (error) {
+      console.error('Channel setup error:', error)
+      alert('Error setting up channel. Please try again.')
     } finally {
-      setSearching(false)
+      setSettingUpChannel(false)
     }
   }
 
