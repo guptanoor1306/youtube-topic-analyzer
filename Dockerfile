@@ -16,6 +16,6 @@ WORKDIR /app/backend
 # Expose port (Railway will override with $PORT)
 EXPOSE 8000
 
-# Run uvicorn directly with shell to handle PORT env var
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Use ENTRYPOINT instead of CMD (harder for Railway to override)
+ENTRYPOINT ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
 
