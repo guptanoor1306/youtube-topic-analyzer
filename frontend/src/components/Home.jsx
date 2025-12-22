@@ -62,6 +62,7 @@ const Home = ({ appState, setAppState }) => {
       })
 
       if (setupResponse.data.success) {
+        console.log('📹 Received videos:', setupResponse.data.recent_videos?.length || 0)
         // Save to app state
         setAppState(prev => ({
           ...prev,
@@ -70,7 +71,7 @@ const Home = ({ appState, setAppState }) => {
             name: channel.title,
             thumbnail: channel.thumbnail
           },
-          availableVideos: setupResponse.data.videos || []
+          availableVideos: setupResponse.data.recent_videos || []
         }))
 
         // Navigate to video selection
