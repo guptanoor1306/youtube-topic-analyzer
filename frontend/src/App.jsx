@@ -2,12 +2,8 @@ import React, { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Header from './components/Header'
 import Home from './components/Home'
-import Zero1Videos from './components/Zero1Videos'
-import FinanceNiche from './components/FinanceNiche'
-import Results from './components/Results'
-import TopicSelection from './components/TopicSelection'
-import TitleGeneration from './components/TitleGeneration'
-import ThumbnailGeneration from './components/ThumbnailGeneration'
+import NewVideoSelection from './components/NewVideoSelection'
+import TemplateRunner from './components/TemplateRunner'
 
 function App() {
   const [appState, setAppState] = useState({
@@ -25,7 +21,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-gray-50">
         <Header />
         <main className="container mx-auto px-4 py-6">
           <Routes>
@@ -39,54 +35,18 @@ function App() {
               } 
             />
             <Route 
-              path="/zero1-videos" 
+              path="/video-selection" 
               element={
-                <Zero1Videos 
+                <NewVideoSelection 
                   appState={appState} 
                   setAppState={setAppState} 
                 />
               } 
             />
             <Route 
-              path="/finance-niche" 
+              path="/template-runner" 
               element={
-                <FinanceNiche 
-                  appState={appState} 
-                  setAppState={setAppState} 
-                />
-              } 
-            />
-            <Route 
-              path="/results" 
-              element={
-                <Results 
-                  appState={appState} 
-                  setAppState={setAppState} 
-                />
-              } 
-            />
-            <Route 
-              path="/topic-selection" 
-              element={
-                <TopicSelection 
-                  appState={appState} 
-                  setAppState={setAppState} 
-                />
-              } 
-            />
-            <Route 
-              path="/title-generation" 
-              element={
-                <TitleGeneration 
-                  appState={appState} 
-                  setAppState={setAppState} 
-                />
-              } 
-            />
-            <Route 
-              path="/thumbnail-generation" 
-              element={
-                <ThumbnailGeneration 
+                <TemplateRunner 
                   appState={appState} 
                   setAppState={setAppState} 
                 />

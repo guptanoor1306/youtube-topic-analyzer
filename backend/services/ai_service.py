@@ -242,6 +242,25 @@ Provide your response in JSON format:
                 "error": str(e)
             }
     
+    async def generate_response(self, prompt: str, model: str = "gpt-4-turbo-preview", temperature: float = 0.7) -> str:
+        """Generate a text response from OpenAI"""
+        try:
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are a senior content strategist analyzing YouTube videos."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=temperature,
+                max_tokens=3000
+            )
+            
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            print(f"OpenAI API error: {str(e)}")
+            raise Exception(f"Failed to generate AI response: {str(e)}")
+    
     async def extract_search_keywords(self, topic: str) -> Dict:
         """Extract the essence and best search keywords from a topic using AI"""
         

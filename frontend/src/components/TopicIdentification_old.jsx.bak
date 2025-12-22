@@ -1,0 +1,1103 @@
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  ArrowLeft,
+  Check,
+  Loader2,
+  FileText,
+  Image,
+  MessageSquare,
+  Eye,
+  PlaySquare,
+  Search,
+  X,
+  Sparkles,
+  Send,
+  CheckCircle2
+} from 'lucide-react'
+import axios from 'axios'
+import { API_BASE_URL } from '../config'
+
+const TopicIdentification = () => {
+  const navigate = useNavigate()
+  
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1)
+  
+  // Step 1: Analysis Type
+  const [analysisType, setAnalysisType] = useState(null) // 'zero1', 'niche', 'outside'
+  
+  // Step 2: Template Selection
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+  
+  // Step 3: Channel Selection (for niche/outside)
+  const [selectedChannels, setSelectedChannels] = useState([])
+  const [channelSearchQuery, setChannelSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searching, setSearching] = useState(false)
+  const [availableFiles, setAvailableFiles] = useState([])
+  const [loadingFiles, setLoadingFiles] = useState(false)
+  
+  // Step 4: Metadata Selection with Weights
+  const [selectedMetadata, setSelectedMetadata] = useState([])
+  const [metadataWeights, setMetadataWeights] = useState({})
+  
+  // Step 5: Analysis
+  const [customPrompt, setCustomPrompt] = useState('')
+  const [analyzing, setAnalyzing] = useState(false)
+  const [analysisResult, setAnalysisResult] = useState(null)
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
+
+  // Analysis Templates by Type
+  const analysisTemplates = {
+    zero1: [
+      {
+        id: 'trending',
+        name: '🔥 Most Trending',
+        description: 'Identify trending topics based on views and engagement',
+        metadata: ['comments', 'views', 'title', 'thumbnail'],
+        defaultWeights: { comments: 30, views: 40, title: 20, thumbnail: 10 },
+        prompt: `Analyze Zero1's data to identify the MOST TRENDING topics.
+
+Focus on metrics that indicate trending content:
+- **High view counts** (40% weight) - Videos with exceptional viewership
+- **Comment volume & engagement** (30% weight) - High interaction rates
+- **Title patterns** (20% weight) - What titles attract attention
+- **Thumbnail effectiveness** (10% weight) - Visual appeal patterns
+
+Identify 5 trending topics that could replicate this success.
+
+For each topic provide:
+**✅ Topic**: [Name]
+**• Why It's Trending**: [View count patterns, engagement rates]
+**• Evidence**: [Specific videos, comment themes, view metrics]
+**• Replication Strategy**: [How to create similar content]`
+      },
+      {
+        id: 'engaging',
+        name: '💬 Most Engaging',
+        description: 'Topics that drive deep audience engagement',
+        metadata: ['comments', 'transcript', 'title'],
+        defaultWeights: { comments: 50, transcript: 35, title: 15 },
+        prompt: `Analyze Zero1's data to find the MOST ENGAGING topics.
+
+Focus on deep audience interaction:
+- **Comment depth & quality** (50% weight) - Meaningful discussions, questions, personal stories
+- **Transcript content themes** (35% weight) - Topics that resonate emotionally/intellectually
+- **Title hooks** (15% weight) - What promises drive engagement
+
+Identify 5 highly engaging topics.
+
+For each topic provide:
+**✅ Topic**: [Name]
+**• Engagement Indicators**: [Comment quality, discussion depth, avg comments per view]
+**• Evidence**: [Quote high-engagement comments, transcript excerpts]
+**• Engagement Strategy**: [How to maximize interaction]`
+      },
+      {
+        id: 'antithesis',
+        name: '⚡ Anti-thesis',
+        description: 'Challenge common beliefs based on audience misconceptions',
+        metadata: ['comments', 'title'],
+        defaultWeights: { comments: 90, title: 10 },
+        prompt: `Analyze Zero1's data to identify ANTI-THESIS opportunities.
+
+Focus almost entirely on audience misconceptions:
+- **Comment misconceptions** (90% weight) - Wrong beliefs, myths, confusion in comments
+- **Existing titles** (10% weight) - What Zero1 has already debunked
+
+Identify 5 anti-thesis topics that challenge common beliefs.
+
+For each topic provide:
+**✅ Topic**: [The misconception to challenge]
+**• The Myth**: [What people wrongly believe]
+**• Evidence in Comments**: [Quote comments showing this belief]
+**• The Reality**: [What Zero1 should reveal]
+**• Impact**: [Why debunking this matters]`
+      },
+      {
+        id: 'painpoints',
+        name: '😟 Pain Points',
+        description: 'Audience struggles and problems needing solutions',
+        metadata: ['comments', 'transcript'],
+        defaultWeights: { comments: 60, transcript: 40 },
+        prompt: `Analyze Zero1's data to identify audience PAIN POINTS.
+
+Focus on problems and struggles:
+- **Comment frustrations** (60% weight) - Problems, complaints, struggles mentioned
+- **Transcript problem-solving** (40% weight) - Issues Zero1 has addressed
+
+Identify 5 pain point topics.
+
+For each topic provide:
+**✅ Topic**: [The pain point]
+**• The Problem**: [What the audience struggles with]
+**• Evidence**: [Quote comments expressing this pain, relevant transcript sections]
+**• Current Gap**: [What's missing in existing content]
+**• Solution Approach**: [How Zero1 can address this]`
+      },
+      {
+        id: 'formats',
+        name: '🎬 Format Recyclers',
+        description: 'Successful content formats to replicate',
+        metadata: ['title', 'thumbnail', 'transcript'],
+        defaultWeights: { title: 35, thumbnail: 25, transcript: 40 },
+        prompt: `Analyze Zero1's data to identify successful CONTENT FORMATS.
+
+Focus on replicable structures:
+- **Transcript structures** (40% weight) - How content is organized, storytelling patterns
+- **Title formulas** (35% weight) - Successful title patterns
+- **Thumbnail styles** (25% weight) - Visual patterns that work
+
+Identify 5 format templates to reuse.
+
+For each format provide:
+**✅ Format**: [Name]
+**• Structure**: [How the content is organized]
+**• Title Pattern**: [The formula used]
+**• Visual Style**: [Thumbnail approach]
+**• Best Use Cases**: [What topics work with this format]
+**• Examples**: [Successful videos using this format]`
+      },
+      {
+        id: 'gaps',
+        name: '🔍 Content Gaps',
+        description: 'Missing topics audience wants',
+        metadata: ['comments', 'title', 'transcript'],
+        defaultWeights: { comments: 50, title: 30, transcript: 20 },
+        prompt: `Analyze Zero1's data to identify CONTENT GAPS.
+
+Focus on what's missing:
+- **Unanswered questions in comments** (50% weight) - What audience asks that isn't covered
+- **Title coverage** (30% weight) - What topics Zero1 hasn't made videos about
+- **Transcript themes** (20% weight) - Topics mentioned but not deeply explored
+
+Identify 5 content gap opportunities.
+
+For each gap provide:
+**✅ Topic**: [The missing content]
+**• The Gap**: [What's not being covered]
+**• Evidence**: [Comment requests, related topics in transcripts]
+**• Audience Need**: [Why they want this]
+**• Content Opportunity**: [How to fill this gap]`
+      },
+      {
+        id: 'viral',
+        name: '🚀 Viral Potential',
+        description: 'Topics with high shareability and reach',
+        metadata: ['views', 'comments', 'title', 'thumbnail'],
+        defaultWeights: { views: 40, comments: 30, title: 20, thumbnail: 10 },
+        prompt: `Analyze Zero1's data to identify topics with VIRAL POTENTIAL.
+
+Focus on shareability indicators:
+- **View velocity** (40% weight) - Videos that grew fast
+- **Comment sharing intent** (30% weight) - "Sharing this", "Everyone should watch"
+- **Title virality** (20% weight) - Provocative, shareable titles
+- **Thumbnail impact** (10% weight) - Attention-grabbing visuals
+
+Identify 5 viral-potential topics.
+
+For each topic provide:
+**✅ Topic**: [Name]
+**• Viral Elements**: [What makes it shareable]
+**• Evidence**: [View patterns, sharing comments, successful examples]
+**• Target Audience**: [Who would share this]
+**• Amplification Strategy**: [How to maximize viral spread]`
+      },
+      {
+        id: 'evergreen',
+        name: '♾️ Evergreen Content',
+        description: 'Timeless topics with sustained interest',
+        metadata: ['title', 'transcript', 'views'],
+        defaultWeights: { transcript: 50, views: 30, title: 20 },
+        prompt: `Analyze Zero1's data to identify EVERGREEN CONTENT opportunities.
+
+Focus on timeless value:
+- **Transcript themes** (50% weight) - Universal, non-time-sensitive topics
+- **Sustained views** (30% weight) - Videos with consistent watch time over time
+- **Title timelessness** (20% weight) - Topics that don't age
+
+Identify 5 evergreen topics.
+
+For each topic provide:
+**✅ Topic**: [Name]
+**• Timeless Appeal**: [Why this won't age]
+**• Evidence**: [Sustained performance, transcript themes]
+**• Long-term Value**: [Why this stays relevant]
+**• SEO Potential**: [Searchability and discoverability]`
+      }
+    ],
+    niche: [
+      // Templates for Zero1 + Niche (focus on comparison)
+
+Identify 6 high-potential **content topics** that Zero1 could explore next.
+
+🎯 Objective:
+
+Topics should be based primarily on Zero1's **audience needs** (comment demand, engagement), but may also incorporate **insights or formats from competitor videos** when they:
+
+- Reveal unmet interest areas
+- Present replicable content structures
+- Validate trends visible in Zero1 comments
+- Have a potential of getting high views
+
+🧠 Follow this structured process:
+
+1. From the **Zero1 comments**, extract recurring themes that appear frequently and/or have high like counts.
+
+   Focus on:
+   - Financial misunderstandings (e.g., EMI traps, salary vs in-hand confusion)
+   - Aspirational life phases (e.g., navigating 20s, first jobs, career switches)
+   - Lifestyle trade-offs (e.g., health vs affordability, Indian vs abroad cost of living)
+   - Socioeconomic/systemic frustrations (e.g., emigration, civic apathy)
+   - Any other theme that you see recurring in comments
+
+2. From **Zero1 and competitor transcripts**, identify angles that:
+   - Reflect these topics (either explored or hinted at)
+   - Suggest missing or complementary POVs Zero1 hasn't yet covered
+   - Use formats that are transferable (e.g., identity framing, myth-busting, data visual storytelling)
+
+3. Match to Zero1's core content pillars based on top Zero1 videos
+
+---
+
+📦 **Output Format (Use this exact structure for each topic)**:
+
+---
+
+**✅ Topic**: [Short, descriptive topic name]
+
+**• Topic POV**: [What Zero1 would actually show or argue — e.g., expose hidden costs, decode government policies, compare lifestyles, break down misleading finance terms, etc.]
+
+**• Evidence or Derived From**:
+- [Multiple Zero1 viewer comments — quoted or summarized — especially if high-like or repeated]
+- [Relevant references to Zero1 transcripts — where this topic is touched or leads naturally]
+- [Optionally, competitor transcripts where this format or topic was explored successfully or partially]
+
+---
+
+✅ Prioritize:
+- Comment-driven topics with **majority interest**
+- Clear, actionable **point of view**
+- Competitive validation only where useful — not as the main basis
+
+Do **not** include: titles, emotional tags, thumbnails, or general patterns — only **topics** with POV and evidence.`
+    }
+  ]
+
+  // Metadata options
+  const metadataOptions = [
+    { id: 'title', label: 'Title', icon: FileText, description: 'Video titles', color: 'blue' },
+    { id: 'thumbnail', label: 'Thumbnail', icon: Image, description: 'Thumbnail data', color: 'purple' },
+    { id: 'transcript', label: 'Transcript', icon: PlaySquare, description: 'Full video transcripts', color: 'green', disabledFor: ['niche', 'outside'] },
+    { id: 'comments', label: 'Comments', icon: MessageSquare, description: 'User comments', color: 'pink' },
+    { id: 'views', label: 'Views', icon: Eye, description: 'View counts & engagement', color: 'orange' },
+  ]
+
+  useEffect(() => {
+    if (currentStep === 2 && analysisType !== 'zero1') {
+      fetchAvailableFiles()
+    }
+  }, [currentStep, analysisType])
+
+  const fetchAvailableFiles = async () => {
+    try {
+      setLoadingFiles(true)
+      const response = await axios.get(`${API_BASE_URL}/api/reverse-engineering/files`)
+      if (response.data.success) {
+        setAvailableFiles(response.data.files)
+      }
+    } catch (error) {
+      console.error('Error fetching files:', error)
+    } finally {
+      setLoadingFiles(false)
+    }
+  }
+
+  const handleAnalysisTypeSelect = (type) => {
+    setAnalysisType(type)
+    if (type === 'zero1') {
+      setCurrentStep(3) // Skip channel selection for Zero1
+    } else {
+      setCurrentStep(2) // Go to channel selection
+    }
+  }
+
+  const handleChannelSearch = async () => {
+    if (!channelSearchQuery.trim()) return
+    
+    setSearching(true)
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/search/channel`, {
+        query: channelSearchQuery,
+        max_results: 5
+      })
+      
+      if (response.data.channels) {
+        setSearchResults(response.data.channels)
+      }
+    } catch (error) {
+      console.error('Error searching channels:', error)
+      alert('Failed to search channels')
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  const handleAddChannel = (channel) => {
+    if (selectedChannels.length >= 5) {
+      alert('Maximum 5 channels allowed')
+      return
+    }
+    
+    if (!selectedChannels.find(c => c.channel_id === channel.channel_id)) {
+      setSelectedChannels([...selectedChannels, channel])
+      setSearchResults([])
+      setChannelSearchQuery('')
+    }
+  }
+
+  const handleAddFromFiles = (file) => {
+    if (selectedChannels.length >= 5) {
+      alert('Maximum 5 channels allowed')
+      return
+    }
+    
+    if (!selectedChannels.find(c => c.filename === file.filename)) {
+      setSelectedChannels([...selectedChannels, {
+        channel_name: file.channel_name,
+        filename: file.filename,
+        videos_count: file.videos_count,
+        fromFile: true
+      }])
+    }
+  }
+
+  const handleRemoveChannel = (channel) => {
+    setSelectedChannels(selectedChannels.filter(c => 
+      channel.fromFile ? c.filename !== channel.filename : c.channel_id !== channel.channel_id
+    ))
+  }
+
+  const handleMetadataToggle = (metadataId) => {
+    if (selectedMetadata.includes(metadataId)) {
+      setSelectedMetadata(selectedMetadata.filter(m => m !== metadataId))
+    } else {
+      setSelectedMetadata([...selectedMetadata, metadataId])
+    }
+  }
+
+  const handleAnalyze = async () => {
+    if (!customPrompt.trim()) {
+      alert('Please enter an analysis prompt')
+      return
+    }
+
+    // Add user message to chat
+    const userMessage = { role: 'user', content: customPrompt }
+    setChatMessages(prev => [...prev, userMessage])
+
+    setAnalyzing(true)
+    try {
+      // Prepare request based on analysis type
+      let requestData = {
+        analysis_type: analysisType,
+        metadata_fields: selectedMetadata,
+        custom_prompt: customPrompt
+      }
+
+      if (analysisType === 'zero1') {
+        requestData.filenames = ['Zero1.json'] // Default Zero1 file
+      } else {
+        requestData.filenames = selectedChannels
+          .filter(c => c.fromFile)
+          .map(c => c.filename)
+        
+        requestData.channel_ids = selectedChannels
+          .filter(c => !c.fromFile)
+          .map(c => c.channel_id)
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/topics/analyze`,
+        requestData
+      )
+
+      if (response.data.success) {
+        setAnalysisResult(response.data.analysis)
+        
+        // Format analysis result as a nice message
+        const result = response.data.analysis
+        let resultMessage = '📊 **Analysis Results**\n\n'
+        
+        if (result.analysis_summary) {
+          resultMessage += `**Summary:**\n${result.analysis_summary}\n\n`
+        }
+        
+        if (result.key_findings && result.key_findings.length > 0) {
+          resultMessage += '**Key Findings:**\n'
+          result.key_findings.forEach((finding, idx) => {
+            const text = typeof finding === 'object' ? JSON.stringify(finding) : finding
+            resultMessage += `${idx + 1}. ${text}\n`
+          })
+          resultMessage += '\n'
+        }
+        
+        if (result.patterns && result.patterns.length > 0) {
+          resultMessage += '**Patterns:**\n'
+          result.patterns.forEach((pattern, idx) => {
+            const text = typeof pattern === 'object' ? JSON.stringify(pattern) : pattern
+            resultMessage += `${idx + 1}. ${text}\n`
+          })
+          resultMessage += '\n'
+        }
+        
+        if (result.insights && result.insights.length > 0) {
+          resultMessage += '**Insights:**\n'
+          result.insights.forEach((insight, idx) => {
+            const text = typeof insight === 'object' ? JSON.stringify(insight) : insight
+            resultMessage += `${idx + 1}. ${text}\n`
+          })
+          resultMessage += '\n'
+        }
+        
+        if (result.recommendations && result.recommendations.length > 0) {
+          resultMessage += '**Recommendations:**\n'
+          result.recommendations.forEach((rec, idx) => {
+            const text = typeof rec === 'object' ? JSON.stringify(rec) : rec
+            resultMessage += `${idx + 1}. ${text}\n`
+          })
+        }
+        
+        // Add assistant message to chat
+        const assistantMessage = { role: 'assistant', content: resultMessage }
+        setChatMessages(prev => [...prev, assistantMessage])
+        
+        // Clear the prompt
+        setCustomPrompt('')
+      }
+    } catch (error) {
+      console.error('Error analyzing:', error)
+      const errorMessage = { 
+        role: 'assistant', 
+        content: `❌ Error: ${error.response?.data?.detail || 'Failed to analyze. Please try again.'}` 
+      }
+      setChatMessages(prev => [...prev, errorMessage])
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
+  const handleSendChatMessage = async () => {
+    if (!chatInput.trim()) return
+
+    const userMessage = { role: 'user', content: chatInput }
+    setChatMessages(prev => [...prev, userMessage])
+    setChatInput('')
+    setChatLoading(true)
+
+    try {
+      let requestData = {
+        analysis_type: analysisType,
+        metadata_fields: selectedMetadata,
+        conversation_history: chatMessages,
+        new_message: chatInput
+      }
+
+      if (analysisType === 'zero1') {
+        requestData.filenames = ['Zero1.json']
+      } else {
+        requestData.filenames = selectedChannels
+          .filter(c => c.fromFile)
+          .map(c => c.filename)
+        requestData.channel_ids = selectedChannels
+          .filter(c => !c.fromFile)
+          .map(c => c.channel_id)
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/topics/chat`,
+        requestData
+      )
+
+      if (response.data.success) {
+        const assistantMessage = { role: 'assistant', content: response.data.response }
+        setChatMessages(prev => [...prev, assistantMessage])
+      }
+    } catch (error) {
+      console.error('Error in chat:', error)
+      alert('Failed to get chat response')
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
+  const canProceedToStep3 = () => {
+    if (analysisType === 'zero1') return true
+    return selectedChannels.length > 0
+  }
+
+  const canProceedToStep4 = () => {
+    return selectedMetadata.length > 0
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </button>
+          
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text mb-2">
+            Topic Identification
+          </h1>
+          <p className="text-gray-400">Follow the steps to analyze and discover content topics</p>
+        </div>
+
+        {/* Progress Steps */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between max-w-3xl">
+            {[
+              { num: 1, label: 'Analysis Type' },
+              { num: 2, label: analysisType === 'zero1' ? 'Skipped' : 'Select Channels' },
+              { num: 3, label: 'Choose Metadata' },
+              { num: 4, label: 'Analyze & Chat' }
+            ].map((step, idx) => (
+              <React.Fragment key={step.num}>
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${
+                    currentStep > step.num
+                      ? 'bg-green-500 text-white'
+                      : currentStep === step.num
+                      ? 'bg-blue-500 text-white'
+                      : step.label === 'Skipped'
+                      ? 'bg-gray-700 text-gray-500'
+                      : 'bg-gray-800 text-gray-500'
+                  }`}>
+                    {currentStep > step.num ? <Check className="w-5 h-5" /> : step.num}
+                  </div>
+                  <p className={`text-xs mt-2 ${
+                    currentStep >= step.num ? 'text-white' : 'text-gray-500'
+                  }`}>
+                    {step.label}
+                  </p>
+                </div>
+                {idx < 3 && (
+                  <div className={`flex-1 h-0.5 mx-2 ${
+                    currentStep > step.num + 1 ? 'bg-green-500' : 'bg-gray-800'
+                  }`} />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 1: Analysis Type Selection */}
+        {currentStep === 1 && (
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-8">
+              <h2 className="text-2xl font-bold mb-2">Choose Analysis Type</h2>
+              <p className="text-gray-400 mb-8">Select what data you want to analyze</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Zero1 Only */}
+                <div
+                  onClick={() => handleAnalysisTypeSelect('zero1')}
+                  className={`p-6 rounded-xl border-2 cursor-pointer transition-all hover:scale-105 ${
+                    analysisType === 'zero1'
+                      ? 'border-blue-500 bg-blue-500/10'
+                      : 'border-gray-700 hover:border-blue-400'
+                  }`}
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-bold text-lg mb-2">Zero1 Only</h3>
+                  <p className="text-sm text-gray-400 mb-4">
+                    Analyze Zero1 by Zerodha content to identify successful patterns
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-blue-400">
+                    <span>Default: Top 40 videos</span>
+                  </div>
+                </div>
+
+                {/* Zero1 + Niche */}
+                <div
+                  onClick={() => handleAnalysisTypeSelect('niche')}
+                  className={`p-6 rounded-xl border-2 cursor-pointer transition-all hover:scale-105 ${
+                    analysisType === 'niche'
+                      ? 'border-green-500 bg-green-500/10'
+                      : 'border-gray-700 hover:border-green-400'
+                  }`}
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center mb-4">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-bold text-lg mb-2">Zero1 + Niche</h3>
+                  <p className="text-sm text-gray-400 mb-4">
+                    Compare Zero1 with finance niche channels
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-green-400">
+                    <span>Add up to 5 channels</span>
+                  </div>
+                </div>
+
+                {/* Zero1 + Outside Niche */}
+                <div
+                  onClick={() => handleAnalysisTypeSelect('outside')}
+                  className={`p-6 rounded-xl border-2 cursor-pointer transition-all hover:scale-105 ${
+                    analysisType === 'outside'
+                      ? 'border-purple-500 bg-purple-500/10'
+                      : 'border-gray-700 hover:border-purple-400'
+                  }`}
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mb-4">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-bold text-lg mb-2">Zero1 + Outside Niche</h3>
+                  <p className="text-sm text-gray-400 mb-4">
+                    Explore patterns from outside finance
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-purple-400">
+                    <span>Add up to 5 channels</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Channel Selection */}
+        {currentStep === 2 && analysisType !== 'zero1' && (
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-8">
+              <h2 className="text-2xl font-bold mb-2">Select Channels</h2>
+              <p className="text-gray-400 mb-6">
+                Add up to 5 {analysisType === 'niche' ? 'finance niche' : 'outside niche'} channels
+              </p>
+
+              {/* Selected Channels */}
+              {selectedChannels.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-gray-300">
+                      Selected Channels ({selectedChannels.length}/5)
+                    </h3>
+                    <div className="flex gap-3 text-xs text-gray-400">
+                      <span>📁 {selectedChannels.filter(c => c.fromFile).length} from files</span>
+                      <span>🔴 {selectedChannels.filter(c => !c.fromFile).length} from YouTube</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {selectedChannels.map((channel, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-[#0a0a0a] p-3 rounded-lg border border-gray-800">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full ${channel.fromFile ? 'bg-blue-500' : 'bg-red-500'}`}></div>
+                          <div>
+                            <p className="font-semibold text-sm">{channel.channel_name || channel.title}</p>
+                            <p className="text-xs text-gray-500">
+                              {channel.fromFile ? `${channel.videos_count} videos (from file)` : 'Top 10 videos (YouTube API)'}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveChannel(channel)}
+                          className="p-1 hover:bg-red-500/20 rounded transition-colors"
+                        >
+                          <X className="w-4 h-4 text-red-400" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Add Channels Section */}
+              {selectedChannels.length < 5 && (
+                <div className="space-y-6">
+                  
+                  {/* Option 1: Search YouTube */}
+                  <div className="bg-gradient-to-br from-red-900/20 to-pink-900/20 border-2 border-red-500/30 rounded-xl p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                        <Search className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-white">Search YouTube (Live API)</h3>
+                        <p className="text-xs text-gray-400">Find any channel • Uses top 10 videos</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={channelSearchQuery}
+                        onChange={(e) => setChannelSearchQuery(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleChannelSearch()}
+                        placeholder="Search for any channel... (e.g., Think School, Ali Abdaal)"
+                        className="flex-1 px-4 py-2 bg-[#0a0a0a] border border-red-500/30 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        disabled={searching}
+                      />
+                      <button
+                        onClick={handleChannelSearch}
+                        disabled={searching || !channelSearchQuery.trim()}
+                        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors font-semibold"
+                      >
+                        {searching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                      </button>
+                    </div>
+
+                    {/* Search Results */}
+                    {searchResults.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        <p className="text-xs text-gray-400 font-semibold">Search Results:</p>
+                        {searchResults.map((channel, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => handleAddChannel(channel)}
+                            className="flex items-center justify-between bg-[#0a0a0a] p-3 rounded-lg border border-red-500/30 cursor-pointer hover:border-red-500 hover:bg-red-500/5 transition-all group"
+                          >
+                            <div className="flex-1 pr-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                <p className="font-semibold text-sm">{channel.title}</p>
+                              </div>
+                              <p className="text-xs text-gray-500 ml-4 mt-1 line-clamp-1">{channel.description?.substring(0, 100)}</p>
+                            </div>
+                            <button className="px-4 py-1.5 bg-red-600 text-white text-xs rounded font-semibold hover:bg-red-700 group-hover:scale-105 transition-transform">
+                              Add
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Option 2: Available Files */}
+                  {availableFiles.length > 0 && (
+                    <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-2 border-blue-500/30 rounded-xl p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <FileText className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold text-white">Available Data Files</h3>
+                          <p className="text-xs text-gray-400">Pre-loaded channels with full data</p>
+                        </div>
+                      </div>
+                      
+                      {loadingFiles ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {availableFiles
+                            .filter(file => file.filename !== 'Zero1.json') // Exclude Zero1 from niche/outside
+                            .map((file, idx) => {
+                              const isSelected = selectedChannels.find(c => c.filename === file.filename)
+                              return (
+                                <div
+                                  key={idx}
+                                  onClick={() => !isSelected && handleAddFromFiles(file)}
+                                  className={`p-3 rounded-lg border-2 transition-all ${
+                                    isSelected
+                                      ? 'border-green-500 bg-green-500/10 cursor-not-allowed'
+                                      : 'border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/5 cursor-pointer'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <p className="font-semibold text-sm">{file.channel_name}</p>
+                                    {isSelected && <CheckCircle2 className="w-4 h-4 text-green-500 ml-auto" />}
+                                  </div>
+                                  <p className="text-xs text-gray-500 ml-4">{file.videos_count} videos • {file.fetch_date}</p>
+                                </div>
+                              )
+                            })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-between mt-6">
+                <button
+                  onClick={() => setCurrentStep(1)}
+                  className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={() => setCurrentStep(3)}
+                  disabled={!canProceedToStep3()}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next: Choose Metadata
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Metadata Selection */}
+        {currentStep === 3 && (
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-8">
+              <h2 className="text-2xl font-bold mb-2">Choose Metadata</h2>
+              <p className="text-gray-400 mb-6">Select at least one metadata type to analyze</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {metadataOptions.map((option) => {
+                  const isDisabled = option.disabledFor?.includes(analysisType)
+                  const Icon = option.icon
+                  
+                  return (
+                    <div
+                      key={option.id}
+                      onClick={() => !isDisabled && handleMetadataToggle(option.id)}
+                      className={`p-6 rounded-xl border-2 transition-all ${
+                        isDisabled
+                          ? 'opacity-40 cursor-not-allowed border-gray-800'
+                          : selectedMetadata.includes(option.id)
+                          ? `border-${option.color}-500 bg-${option.color}-500/10 cursor-pointer`
+                          : 'border-gray-700 hover:border-gray-600 cursor-pointer'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className={`w-10 h-10 bg-${option.color}-500/20 rounded-lg flex items-center justify-center`}>
+                          <Icon className={`w-5 h-5 text-${option.color}-400`} />
+                        </div>
+                        {selectedMetadata.includes(option.id) && !isDisabled && (
+                          <div className={`w-6 h-6 bg-${option.color}-500 rounded-full flex items-center justify-center`}>
+                            <Check className="w-4 h-4 text-white" />
+                          </div>
+                        )}
+                        {isDisabled && (
+                          <span className="text-xs bg-gray-800 text-gray-500 px-2 py-1 rounded">Disabled</span>
+                        )}
+                      </div>
+                      <h3 className="font-bold text-lg mb-1">{option.label}</h3>
+                      <p className="text-sm text-gray-400">{option.description}</p>
+                      {isDisabled && (
+                        <p className="text-xs text-gray-500 mt-2">
+                          Not available for {analysisType === 'niche' ? 'niche' : 'outside niche'} analysis
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="flex justify-between">
+                <button
+                  onClick={() => setCurrentStep(analysisType === 'zero1' ? 1 : 2)}
+                  className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={() => setCurrentStep(4)}
+                  disabled={!canProceedToStep4()}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next: Analyze
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Analysis & Chat */}
+        {currentStep === 4 && (
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 p-6">
+              
+              {/* Configuration Summary */}
+              <div className="bg-[#0a0a0a] rounded-lg p-4 mb-4 flex items-center justify-between">
+                <div className="flex gap-6 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400">Analysis:</span>
+                    <span className="text-white font-semibold capitalize">{analysisType}</span>
+                  </div>
+                  {analysisType !== 'zero1' && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">Channels:</span>
+                      <span className="text-white font-semibold">{selectedChannels.length}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400">Metadata:</span>
+                    <span className="text-white font-semibold">{selectedMetadata.length} fields</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setCurrentStep(3)}
+                  className="px-4 py-2 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  ← Back
+                </button>
+              </div>
+
+              {/* Chat Interface */}
+              <div className="flex items-center gap-2 mb-4">
+                <MessageSquare className="w-5 h-5 text-blue-400" />
+                <h2 className="text-xl font-semibold">Analysis & Chat</h2>
+              </div>
+
+              {/* Chat Messages */}
+              <div className="bg-[#0a0a0a] rounded-lg p-4 mb-4 h-[600px] overflow-y-auto">
+                {chatMessages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <Sparkles className="w-12 h-12 text-yellow-400 mb-4" />
+                    <p className="text-gray-300 font-semibold mb-2">Ready to analyze!</p>
+                    <p className="text-sm text-gray-500 max-w-md">
+                      Enter your analysis question below to discover topics, patterns, and insights from your data.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {chatMessages.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[85%] p-4 rounded-lg ${
+                            msg.role === 'user'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-800 text-gray-100'
+                          }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {(analyzing || chatLoading) && (
+                      <div className="flex justify-start">
+                        <div className="bg-gray-800 p-4 rounded-lg">
+                          <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Input Area */}
+              <div className="space-y-3">
+                {/* Template Selection */}
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded-lg hover:bg-purple-600/30 transition-colors"
+                  >
+                    <FileText className="w-4 h-4" />
+                    {showTemplates ? 'Hide Templates' : 'Use Prompt Template'}
+                  </button>
+                  {customPrompt && (
+                    <button
+                      onClick={() => setCustomPrompt('')}
+                      className="text-xs text-gray-400 hover:text-white transition-colors"
+                    >
+                      Clear prompt
+                    </button>
+                  )}
+                </div>
+
+                {/* Template Cards */}
+                {showTemplates && (
+                  <div className="bg-[#0a0a0a] rounded-lg border border-purple-500/30 p-4 space-y-3">
+                    <p className="text-xs text-gray-400 font-semibold">SELECT A TEMPLATE:</p>
+                    {promptTemplates.map((template) => (
+                      <div
+                        key={template.id}
+                        onClick={() => {
+                          setCustomPrompt(template.prompt)
+                          setShowTemplates(false)
+                        }}
+                        className="p-4 bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-2 border-purple-500/30 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-900/40 transition-all group"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold text-white">{template.name}</h4>
+                          <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded group-hover:bg-purple-500/30">
+                            Click to use
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-400">{template.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <textarea
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        if (customPrompt.trim()) handleAnalyze()
+                      }
+                    }}
+                    placeholder="Example: Based on user comments, what would be top 5 topics that we should make content on
+
+Or click 'Use Prompt Template' above to load a pre-built prompt"
+                    rows={customPrompt ? 8 : 3}
+                    className="flex-1 px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    disabled={analyzing || chatLoading}
+                  />
+                  <button
+                    onClick={handleAnalyze}
+                    disabled={analyzing || chatLoading || !customPrompt.trim()}
+                    className="px-6 bg-gradient-to-r from-yellow-600 to-orange-600 text-white rounded-lg font-semibold hover:from-yellow-700 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    {analyzing ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                
+                {/* Chat Input for follow-ups */}
+                {chatMessages.length > 0 && (
+                  <div className="flex gap-2 pt-3 border-t border-gray-800">
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendChatMessage()}
+                      placeholder="Ask a follow-up question..."
+                      className="flex-1 px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={chatLoading || analyzing}
+                    />
+                    <button
+                      onClick={handleSendChatMessage}
+                      disabled={chatLoading || analyzing || !chatInput.trim()}
+                      className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      <Send className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default TopicIdentification
+

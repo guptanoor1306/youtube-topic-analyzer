@@ -1,0 +1,25 @@
+PDF UPLOAD - QUICK START
+========================
+
+1. Export Google Sheets as PDF:
+   - File > Download > PDF Document
+   - Save as: ChannelName_data.pdf
+
+2. Upload in App:
+   - Go to Reverse Engineering page
+   - Enter channel name
+   - Click "Upload PDF"
+   - Select your PDF file
+
+3. Done! File auto-converts to JSON
+
+FORMAT YOUR GOOGLE SHEET:
+-------------------------
+Columns needed: Title | Transcript | Comments
+
+That's it! The system handles the rest.
+
+SAMPLE FILES:
+- data_template.json = Empty template
+- sample_ZERO1.json = Example with placeholder data
+

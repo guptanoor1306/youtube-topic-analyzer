@@ -1,141 +1,211 @@
 {
-  "niche_name": "Finance, Business & Content Creation",
-  "description": "Curated channels covering personal finance, investing, business, entrepreneurship, and content creation. Top 30 channels prioritized for quick search.",
-  "channels": [
-    {"channel_id": "UCV6KDgJskWaEckne5aPA0aQ", "channel_name": "Graham Stephan", "category": "Personal Finance", "priority": 1},
-    {"channel_id": "UCGq-a57w-aPwyi3pW7XLiHw", "channel_name": "The Diary Of A CEO", "category": "Business", "priority": 1},
-    {"channel_id": "UCLXo7UDZvByw2ixzpQCufnA", "channel_name": "Vox", "category": "Documentary", "priority": 1},
-    {"channel_id": "UCBJycsmduvYEL83R_U4JriQ", "channel_name": "Marques Brownlee", "category": "Tech", "priority": 1},
-    {"channel_id": "UCoOae5nYA7VqaXzerajD0lg", "channel_name": "Ali Abdaal", "category": "Productivity", "priority": 1},
-    {"channel_id": "UCY1kMZp36IQSyNx_9h4mpCg", "channel_name": "Mark Rober", "category": "Science", "priority": 1},
-    {"channel_id": "UCmGSJVG3mCRXVOP4yZrU1Dw", "channel_name": "Johnny Harris", "category": "Documentary", "priority": 1},
-    {"channel_id": "UCRzYN32xtBf3Yxsx5BvJWJw", "channel_name": "warikoo", "category": "Indian Finance", "priority": 1},
-    {"channel_id": "UCHnyfMqiRRG1u-2MsSQLbXA", "channel_name": "Veritasium", "category": "Science", "priority": 1},
-    {"channel_id": "UCsXVk37bltHxD1rDPwtNM8Q", "channel_name": "Kurzgesagt – In a Nutshell", "category": "Science", "priority": 1},
-    {"channel_id": "UCKZozRVHRYsYHGEyNKuhhdA", "channel_name": "Think School", "category": "Indian Education", "priority": 1},
-    {"channel_id": "UCzwCEE_PchiBULMnAJqhGVg", "channel_name": "Raj Shamani", "category": "Indian Business", "priority": 1},
-    {"channel_id": "UCtinbF-Q-fVthA0qrFQTgXQ", "channel_name": "CaseyNeistat", "category": "Content Creation", "priority": 1},
-    {"channel_id": "UCUyDOdBWhC1MCxEjC46d-zw", "channel_name": "Alex Hormozi", "category": "Business", "priority": 1},
-    {"channel_id": "UCMiJRAwDNSNzuYeN2uWa0pA", "channel_name": "Mrwhosetheboss", "category": "Tech", "priority": 1},
-    {"channel_id": "UCqW8jxh4tH1Z1sWPbkGWL4g", "channel_name": "Akshat Shrivastava", "category": "Indian Finance", "priority": 1},
-    {"channel_id": "UCwVEhEzsjLym_u1he4XWFkg", "channel_name": "Finance With Sharan", "category": "Indian Finance", "priority": 1},
-    {"channel_id": "UCwAdQUuPT6laN-AQR17fe1g", "channel_name": "pranjal kamra", "category": "Indian Finance", "priority": 1},
-    {"channel_id": "UC7ZddA__ewP3AtDefjl_tWg", "channel_name": "I Will Teach You To Be Rich", "category": "Personal Finance", "priority": 1},
-    {"channel_id": "UCvK4bOhULCpmLabd2pDMtnA", "channel_name": "Yes Theory", "category": "Content Creation", "priority": 1},
-    {"channel_id": "UCgNg3vwj3xt7QOrcIDaHdFg", "channel_name": "PolyMatter", "category": "Documentary", "priority": 1},
-    {"channel_id": "UCkCGANrihzExmu9QiqZpPlQ", "channel_name": "How Money Works", "category": "Finance Education", "priority": 1},
-    {"channel_id": "UCe6eisvsctSPvBhmincn6kQ", "channel_name": "James Jani", "category": "Documentary", "priority": 1},
-    {"channel_id": "UCE4Gn00XZbpWvGUfIslT-tA", "channel_name": "MagnatesMedia", "category": "Business", "priority": 1},
-    {"channel_id": "UC3DkFux8Iv-aYnTRWzwaiBA", "channel_name": "Peter McKinnon", "category": "Content Creation", "priority": 1},
-    {"channel_id": "UCDXTQ8nWmx_EhZ2v-kp7QxA", "channel_name": "Ben Felix", "category": "Finance Education", "priority": 1},
-    {"channel_id": "UC4QZ_LsYcvcq7qOsOhpAX4A", "channel_name": "ColdFusion", "category": "Tech & Finance", "priority": 1},
-    {"channel_id": "UCvJJ_dzjViJCoLf5uKUTwoA", "channel_name": "CNBC", "category": "Business News", "priority": 1},
-    {"channel_id": "UCK7tptUDHh-RYDsdxO1-5QQ", "channel_name": "The Wall Street Journal", "category": "Business News", "priority": 1},
-    {"channel_id": "UCAuUUnT6oDeKwE6v1NGQxug", "channel_name": "TED", "category": "Education", "priority": 1},
-    {"channel_id": "UCL_v4tC26PvOFytV1_eEVSg", "channel_name": "Marko - WhiteBoard Finance", "category": "Personal Finance"},
-    {"channel_id": "UCggPd3Vf9ooG2r4I_ZNWBzA", "channel_name": "Wint Wealth", "category": "Indian Finance"},
-    {"channel_id": "UCA295QVkf9O1RQ8_-s3FVXg", "channel_name": "Aevy TV", "category": "Indian Finance"},
-    {"channel_id": "UCqW8jxh4tH1Z1sWPbkGWL4g", "channel_name": "Akshat Shrivastava", "category": "Indian Finance"},
-    {"channel_id": "UCqykZoZjaOPb6i_Y5gk0kLQ", "channel_name": "Christophe", "category": "Content Creation"},
-    {"channel_id": "UCwVEhEzsjLym_u1he4XWFkg", "channel_name": "Finance With Sharan", "category": "Indian Finance"},
-    {"channel_id": "UCwAdQUuPT6laN-AQR17fe1g", "channel_name": "pranjal kamra", "category": "Indian Finance"},
-    {"channel_id": "UCii9ezsUa_mBiSdw0PtSOaw", "channel_name": "Hoog", "category": "Content Creation"},
-    {"channel_id": "UCkCGANrihzExmu9QiqZpPlQ", "channel_name": "How Money Works", "category": "Finance Education"},
-    {"channel_id": "UCdCottK2mn8T7VOHleKCYCg", "channel_name": "Isabel Paige", "category": "Personal Finance"},
-    {"channel_id": "UCmGSJVG3mCRXVOP4yZrU1Dw", "channel_name": "Johnny Harris", "category": "Documentary"},
-    {"channel_id": "UCY1kMZp36IQSyNx_9h4mpCg", "channel_name": "Mark Rober", "category": "Science"},
-    {"channel_id": "UCehBVAPy-bxmnbNARF-_tvA", "channel_name": "More Perfect Union", "category": "Documentary"},
-    {"channel_id": "UCMiJRAwDNSNzuYeN2uWa0pA", "channel_name": "Mrwhosetheboss", "category": "Tech"},
-    {"channel_id": "UCO3tlaeZ6Z0ZN5frMZI3-uQ", "channel_name": "Nate O'Brien", "category": "Personal Finance"},
-    {"channel_id": "UCtYKe7-XbaDjpUwcU5x0bLg", "channel_name": "neo", "category": "Documentary"},
-    {"channel_id": "UC3DkFux8Iv-aYnTRWzwaiBA", "channel_name": "Peter McKinnon", "category": "Content Creation"},
-    {"channel_id": "UCPgfM-dk3XAb4T3DtT6Nwsw", "channel_name": "CA Rahul Malodia: Business Coach", "category": "Indian Finance"},
-    {"channel_id": "UCvqttS8EzhRq2YWg03qKRCQ", "channel_name": "Sanjay Kathuria", "category": "Indian Finance"},
-    {"channel_id": "UCB7GnQlJPIL6rBBqEoX87vA", "channel_name": "SOIC", "category": "Indian Finance"},
-    {"channel_id": "UCSPYNpQ2fHv9HJ-q6MIMaPw", "channel_name": "The Financial Diet", "category": "Personal Finance"},
-    {"channel_id": "UCK7tptUDHh-RYDsdxO1-5QQ", "channel_name": "The Wall Street Journal", "category": "Business News"},
-    {"channel_id": "UCVRqLKnUgC4BM3Vu7gZYQcw", "channel_name": "warikoo careers", "category": "Career Advice"},
-    {"channel_id": "UC9RM-iSvTu1uPJb8X5yp3EQ", "channel_name": "Wendover Productions", "category": "Documentary"},
-    {"channel_id": "UCUyDOdBWhC1MCxEjC46d-zw", "channel_name": "Alex Hormozi", "category": "Business"},
-    {"channel_id": "UCoOae5nYA7VqaXzerajD0lg", "channel_name": "Ali Abdaal", "category": "Productivity"},
-    {"channel_id": "UCvQECJukTDE2i6aCoMnS-Vg", "channel_name": "Big Think", "category": "Education"},
-    {"channel_id": "UCm5iBOcQ0GET_2FqFI61QDA", "channel_name": "Cara Nicole", "category": "Personal Finance"},
-    {"channel_id": "UCtinbF-Q-fVthA0qrFQTgXQ", "channel_name": "CaseyNeistat", "category": "Content Creation"},
-    {"channel_id": "UC4QZ_LsYcvcq7qOsOhpAX4A", "channel_name": "ColdFusion", "category": "Tech & Finance"},
-    {"channel_id": "UCvJJ_dzjViJCoLf5uKUTwoA", "channel_name": "CNBC", "category": "Business News"},
-    {"channel_id": "UCvs2mwDS-ZiIeJ01kvzarbQ", "channel_name": "Debt Free Millennials", "category": "Personal Finance"},
-    {"channel_id": "UC8uj-UFGDzAx3RfPzeRqnyA", "channel_name": "Finshots TV", "category": "Indian Finance"},
-    {"channel_id": "UCFDxyA1H3VEN0VQwfMe2VMQ", "channel_name": "Gawx Art", "category": "Content Creation"},
-    {"channel_id": "UCPk2s5c4R_d-EUUNvFFODoA", "channel_name": "Gohar Khan", "category": "Career Advice"},
-    {"channel_id": "UCw5TLrz3qADabwezTEcOmgQ", "channel_name": "Groww", "category": "Indian Finance"},
-    {"channel_id": "UCWHCXSKASuSzao_pplQ7SPw", "channel_name": "Invest Aaj For Kal", "category": "Indian Finance"},
-    {"channel_id": "UCe6eisvsctSPvBhmincn6kQ", "channel_name": "James Jani", "category": "Documentary"},
-    {"channel_id": "UCT0dmfFCLWuVKPWZ6wcdKyg", "channel_name": "Joe HaTTab", "category": "Content Creation"},
-    {"channel_id": "UCPjHhJ3fxgcV5Gv5uVAhNEA", "channel_name": "Jordan Studdard", "category": "Finance"},
-    {"channel_id": "UCkw1tYo7k8t-Y99bOXuZwhg", "channel_name": "KK Create", "category": "Content Creation"},
-    {"channel_id": "UCE4Gn00XZbpWvGUfIslT-tA", "channel_name": "MagnatesMedia", "category": "Business"},
-    {"channel_id": "UCxgAuX3XZROujMmGphN_scA", "channel_name": "Mark Tilbury", "category": "Personal Finance"},
-    {"channel_id": "UCkjrBN_GAjFJyVvjcI07KkQ", "channel_name": "Natalie Lynn", "category": "Personal Finance"},
-    {"channel_id": "UCAL3JXZSzSm8AlZyD3nQdBA", "channel_name": "Primitive Technology", "category": "Education"},
-    {"channel_id": "UC7KbIaEOuY7H2j-cvhJ3mYA", "channel_name": "Search Party", "category": "Documentary"},
-    {"channel_id": "UCtnItzU7q_bA1eoEBjqcVrw", "channel_name": "Shankar Nath", "category": "Indian Finance"},
-    {"channel_id": "UCV6KDgJskWaEckne5aPA0aQ", "channel_name": "Graham Stephan", "category": "Personal Finance"},
-    {"channel_id": "UCvcEBQ0K3UsQ8bzWKHKQmbw", "channel_name": "struthless", "category": "Content Creation"},
-    {"channel_id": "UCJFp8uSYCjXOMnkUyb3CQ3Q", "channel_name": "Tasty", "category": "Food"},
-    {"channel_id": "UCQQojT_AmVWGb4Eg-QniuBA", "channel_name": "Upsurge Club", "category": "Indian Finance"},
-    {"channel_id": "UCQXwgooTlP6tk2a-u6vgyUA", "channel_name": "Zerodha Varsity", "category": "Indian Finance"},
-    {"channel_id": "UCIVl4K2afJgLJv0b2ToTs_g", "channel_name": "GrowthX", "category": "Business"},
-    {"channel_id": "UCs2y3vIjRJG46v16kgVv_bQ", "channel_name": "Zero1 Hindi by Zerodha", "category": "Indian Finance"},
-    {"channel_id": "UCrgxgGQJWp_a2iWGaSJLzRA", "channel_name": "Zero1 Hustle by Zerodha", "category": "Indian Finance"},
-    {"channel_id": "UCUUlw3anBIkbW9W44Y-eURw", "channel_name": "Zero1 by Zerodha", "category": "Indian Finance"},
-    {"channel_id": "UCmkNoDHBfKzPnXWTNoYQc7A", "channel_name": "StockEdge", "category": "Indian Finance"},
-    {"channel_id": "UCASM0cgfkJxQ1ICmRilfHLw", "channel_name": "Patrick Boyle", "category": "Finance Education"},
-    {"channel_id": "UCDXTQ8nWmx_EhZ2v-kp7QxA", "channel_name": "Ben Felix", "category": "Finance Education"},
-    {"channel_id": "UChftTVI0QJmyXkajQYt2tiQ", "channel_name": "moneycontrol", "category": "Indian Finance"},
-    {"channel_id": "UCM1VqjE2rshkzKfp4zRVwKA", "channel_name": "The Free Press Journal", "category": "Indian News"},
-    {"channel_id": "UCmk6ZFMy1CT80orXca4tKew", "channel_name": "The Financial Express", "category": "Indian News"},
-    {"channel_id": "UCQIycDaLsBpMKjOCeaKUYVg", "channel_name": "CNBC Awaaz", "category": "Indian News"},
-    {"channel_id": "UCIB_MLJZL0T_s5OUuqhmbVA", "channel_name": "Down To Earth", "category": "Indian News"},
-    {"channel_id": "UCRv4waLxgUN0Z-yb2I1Fq4A", "channel_name": "Nikhil Kamath Clips", "category": "Indian Finance"},
-    {"channel_id": "UCKZozRVHRYsYHGEyNKuhhdA", "channel_name": "Think School", "category": "Indian Education"},
-    {"channel_id": "UCshPyRiu9XTQb2gEagNt-3A", "channel_name": "Raj Shamani Clips", "category": "Indian Business"},
-    {"channel_id": "UCzwCEE_PchiBULMnAJqhGVg", "channel_name": "Raj Shamani", "category": "Indian Business"},
-    {"channel_id": "UCzNTVzprq6UG7kBK0LIDtUw", "channel_name": "Karl Niilo", "category": "Finance"},
-    {"channel_id": "UCuifm5ns5SRG8LZJ6gCfKyw", "channel_name": "The Rich Dad Channel", "category": "Personal Finance"},
-    {"channel_id": "UCzHDKR4zchL8NbFWMKgR0BQ", "channel_name": "Sarthak Ahuja", "category": "Indian Finance"},
-    {"channel_id": "UC003vuy58DQezxjYdEQ0vUg", "channel_name": "Anmol Garg", "category": "Indian Finance"},
-    {"channel_id": "UCevFnhyD9Ut5TwYdCLBh5UQ", "channel_name": "Builders Central", "category": "Indian Business"},
-    {"channel_id": "UC1FrkXjCK9kumar4cnNrYUA", "channel_name": "Magic Pill", "category": "Indian Education"},
-    {"channel_id": "UCsDTy8jvHcwMvSZf_JGi-FA", "channel_name": "Abhi and Niyu", "category": "Indian Education"},
-    {"channel_id": "UCMfazW6hC3eaWTW2q0ibhyQ", "channel_name": "Pranay Kapoor", "category": "Indian Business"},
-    {"channel_id": "UCCt0XCeUyqcdT0oTZgXx9cg", "channel_name": "Kushal Lodha", "category": "Indian Finance"},
-    {"channel_id": "UCbwPfuUmnI5R6YpDzu0z8BQ", "channel_name": "Ayush Shukla", "category": "Career Advice"},
-    {"channel_id": "UC8lQOqgdPmX34A9qYr60ePQ", "channel_name": "Career with Faazil", "category": "Career Advice"},
-    {"channel_id": "UCERm5yFZ1SptUEU4wZ2vJvw", "channel_name": "Jeremy Ethier", "category": "Fitness"},
-    {"channel_id": "UCMcoud_ZW7cfxeIugBflSBw", "channel_name": "Riley Brown", "category": "AI & Tech"},
-    {"channel_id": "UCneyi-aYq4VIBYIAQgWmk_w", "channel_name": "Ranveer Allahbadia", "category": "Indian Content"},
-    {"channel_id": "UCorKX0CAjQh0SnflWPnnI9w", "channel_name": "Markets by Zerodha Hindi", "category": "Indian Finance"},
-    {"channel_id": "UCUe21HctLxBkaD4OOHC4cRg", "channel_name": "BhavyaMoneyTalks", "category": "Indian Finance"},
-    {"channel_id": "UCv70BrGTv34_SfcallFFh0w", "channel_name": "Millionaire Making Community", "category": "Indian Finance"},
-    {"channel_id": "UCf0PBRjhf0rF8fWBIxTuoWA", "channel_name": "20VC with Harry Stebbings", "category": "Venture Capital"},
-    {"channel_id": "UCvXvWJfWqD5DdWdnyYF6zkw", "channel_name": "Finshow by Neha Nagar", "category": "Indian Finance"},
-    {"channel_id": "UCAuUUnT6oDeKwE6v1NGQxug", "channel_name": "TED", "category": "Education"},
-    {"channel_id": "UCA-mWX9CvCTVFWRMb9bKc9w", "channel_name": "Dan Martell", "category": "Business"},
-    {"channel_id": "UCmTM_hPCeckqN3cPWtYZZcg", "channel_name": "The Deshbhakt", "category": "Indian News"},
-    {"channel_id": "UCHd62-u_v4DvJ8TCFtpi4GA", "channel_name": "Washington Post", "category": "News"},
-    {"channel_id": "UCkKh0mX-A5uTbk60YutGFxg", "channel_name": "Kishan Chotaliya", "category": "Indian Finance"},
-    {"channel_id": "UCAPcWPgbQmFrnMbgU4wYu5A", "channel_name": "Kevin - Financial Tutor", "category": "Finance Education"},
-    {"channel_id": "UC-8g0HshRxIlzz1pCgfDLZw", "channel_name": "Anuj Jindal", "category": "Indian Finance"},
-    {"channel_id": "UCz4a7agVFr1TxU-mpAP8hkw", "channel_name": "Mohak Mangal", "category": "Indian Education"},
-    {"channel_id": "UCPJ_UzD4PEC-_vwN32amlIQ", "channel_name": "Open Letter", "category": "Indian Education"},
-    {"channel_id": "UCsXVk37bltHxD1rDPwtNM8Q", "channel_name": "Kurzgesagt – In a Nutshell", "category": "Science"},
-    {"channel_id": "UC2MU9phoTYy5sigZCkrvwiw", "channel_name": "Rahul Jain", "category": "Indian Finance"},
-    {"channel_id": "UC5fI3kxC-ewZ6ZXEYgznM7g", "channel_name": "Codie Sanchez", "category": "Business"},
-    {"channel_id": "UCFS1FdIs7ds99an5z3QJDZw", "channel_name": "Humphrey", "category": "Finance"},
-    {"channel_id": "UCFhXFikryT4aFcLkLw2LBLA", "channel_name": "NileRed", "category": "Science"},
-    {"channel_id": "UCM7yoOhnMcfrEZ-5i9m-WFA", "channel_name": "Sonia Shenoy", "category": "Indian Finance"},
-    {"channel_id": "UCBgw1wKUxnmU41EJrnRPTTA", "channel_name": "Moneyminded", "category": "Business"},
-    {"channel_id": "UCqwQKQ1Abi-UDx0GZnAFR9A", "channel_name": "Big Think Shorts", "category": "Education"},
-    {"channel_id": "UC8URMa1fI4rlaLc-Lhev2fQ", "channel_name": "Ryan McBeth", "category": "Programming"}
+  "indian_niche": [
+    {
+      "channel_id": "UCsNxHPbaCWL1tKw2hxGQD6g",
+      "channel_name": "Asset Yogi",
+      "handle": "@assetyogi"
+    },
+    {
+      "channel_id": "UCVOTBwF0vnSxMRIbfSE_K_g",
+      "channel_name": "Labour Law Advisor",
+      "handle": "@labourlawadvisor"
+    },
+    {
+      "channel_id": "UCXbKJML9pVclFHLFzpvBgWw",
+      "channel_name": "Markets by Zerodha",
+      "handle": "@marketsbyzerodha"
+    },
+    {
+      "channel_id": "UCLQOtbB1COQwjcCEPB2pa8w",
+      "channel_name": "Udayan Adhye",
+      "handle": "@udayanadhye"
+    },
+    {
+      "channel_id": "UCRzYN32xtBf3Yxsx5BvJWJw",
+      "channel_name": "warikoo",
+      "handle": "@warikoo"
+    },
+    {
+      "channel_id": "UCBqvATpjSubtNxpqUDj4_cA",
+      "channel_name": "Anshuman Sharma",
+      "handle": "@anshumanfinance"
+    },
+    {
+      "channel_id": "UCUMccND2H_CVS0dMZKCPCXA",
+      "channel_name": "FinnovationZ by Prasad",
+      "handle": "@namaskarprasad"
+    },
+    {
+      "channel_id": "UCggPd3Vf9ooG2r4I_ZNWBzA",
+      "channel_name": "Wint Wealth",
+      "handle": "@wintwealthyt"
+    },
+    {
+      "channel_id": "UCqW8jxh4tH1Z1sWPbkGWL4g",
+      "channel_name": "Akshat Shrivastava",
+      "handle": "@akshatzayn"
+    },
+    {
+      "channel_id": "UCwVEhEzsjLym_u1he4XWFkg",
+      "channel_name": "Finance With Sharan",
+      "handle": "@financewithsharan"
+    },
+    {
+      "channel_id": "UCwAdQUuPT6laN-AQR17fe1g",
+      "channel_name": "pranjal kamra",
+      "handle": "@pranjalkamra"
+    },
+    {
+      "channel_id": "UCPgfM-dk3XAb4T3DtT6Nwsw",
+      "channel_name": "CA Rahul Malodia: Business Coach",
+      "handle": "@rahulmalodiaofficial"
+    },
+    {
+      "channel_id": "UCvqttS8EzhRq2YWg03qKRCQ",
+      "channel_name": "Sanjay Kathuria",
+      "handle": "@sanjay_kathuria"
+    },
+    {
+      "channel_id": "UCB7GnQlJPIL6rBBqEoX87vA",
+      "channel_name": "SOIC",
+      "handle": "@soicfinance"
+    },
+    {
+      "channel_id": "UCVRqLKnUgC4BM3Vu7gZYQcw",
+      "channel_name": "warikoo careers",
+      "handle": "@warikoocareer"
+    },
+    {
+      "channel_id": "UC8uj-UFGDzAx3RfPzeRqnyA",
+      "channel_name": "Finshots TV",
+      "handle": "@finshotstv"
+    },
+    {
+      "channel_id": "UCw5TLrz3qADabwezTEcOmgQ",
+      "channel_name": "Groww",
+      "handle": "@groww"
+    },
+    {
+      "channel_id": "UCWHCXSKASuSzao_pplQ7SPw",
+      "channel_name": "Invest Aaj For Kal",
+      "handle": "@investaajforkal"
+    },
+    {
+      "channel_id": "UCtnItzU7q_bA1eoEBjqcVrw",
+      "channel_name": "Shankar Nath",
+      "handle": "@shankarnath"
+    },
+    {
+      "channel_id": "UCQQojT_AmVWGb4Eg-QniuBA",
+      "channel_name": "Upsurge Club",
+      "handle": "@upsurge_club"
+    },
+    {
+      "channel_id": "UCQXwgooTlP6tk2a-u6vgyUA",
+      "channel_name": "Zerodha Varsity",
+      "handle": "@varsitybyzerodha"
+    },
+    {
+      "channel_id": "UCs2y3vIjRJG46v16kgVv_bQ",
+      "channel_name": "Zero1 Hindi by Zerodha",
+      "handle": "@Zero1hindi"
+    },
+    {
+      "channel_id": "UCUUlw3anBIkbW9W44Y-eURw",
+      "channel_name": "Zero1 by Zerodha",
+      "handle": "@zero1byzerodha"
+    },
+    {
+      "channel_id": "UCorKX0CAjQh0SnflWPnnI9w",
+      "channel_name": "Markets by Zerodha Hindi",
+      "handle": "@marketsbyzerodhahindi"
+    },
+    {
+      "channel_id": "UC2MU9phoTYy5sigZCkrvwiw",
+      "channel_name": "Rahul Jain",
+      "handle": "@torahulj"
+    }
+  ],
+  "global_niche": [
+    {
+      "channel_id": "UCODr9HUJ90xtWD-0Xoz4vPw",
+      "channel_name": "Hamish Hodder",
+      "handle": "@hamishhodder"
+    },
+    {
+      "channel_id": "UCgNg3vwj3xt7QOrcIDaHdFg",
+      "channel_name": "PolyMatter",
+      "handle": "@polymatter"
+    },
+    {
+      "channel_id": "UC7ZddA__ewP3AtDefjl_tWg",
+      "channel_name": "I Will Teach You To Be Rich",
+      "handle": "@ramitsethi"
+    },
+    {
+      "channel_id": "UCQpPo9BNwezg54N9hMFQp6Q",
+      "channel_name": "Nischa",
+      "handle": "@nischa"
+    },
+    {
+      "channel_id": "UCAxUtcgLiq_gopO87VaZM5w",
+      "channel_name": "Sabri Suby",
+      "handle": "@sabrisubyofficial"
+    },
+    {
+      "channel_id": "UCL_v4tC26PvOFytV1_eEVSg",
+      "channel_name": "Marko - WhiteBoard Finance",
+      "handle": "@whiteboardfinance"
+    },
+    {
+      "channel_id": "UCkCGANrihzExmu9QiqZpPlQ",
+      "channel_name": "How Money Works",
+      "handle": "@howmoneyworks"
+    },
+    {
+      "channel_id": "UCO3tlaeZ6Z0ZN5frMZI3-uQ",
+      "channel_name": "Nate O'Brien",
+      "handle": "@nateobrien"
+    },
+    {
+      "channel_id": "UCSPYNpQ2fHv9HJ-q6MIMaPw",
+      "channel_name": "The Financial Diet",
+      "handle": "@thefinancialdiet"
+    },
+    {
+      "channel_id": "UCK7tptUDHh-RYDsdxO1-5QQ",
+      "channel_name": "The Wall Street Journal",
+      "handle": "@wsj"
+    },
+    {
+      "channel_id": "UCm5iBOcQ0GET_2FqFI61QDA",
+      "channel_name": "Cara Nicole",
+      "handle": "@thefinancialfreedomgirl"
+    },
+    {
+      "channel_id": "UCvJJ_dzjViJCoLf5uKUTwoA",
+      "channel_name": "CNBC",
+      "handle": "@cnbc"
+    },
+    {
+      "channel_id": "UCvs2mwDS-ZiIeJ01kvzarbQ",
+      "channel_name": "Debt Free Millennials",
+      "handle": "@debtfreemillennials"
+    },
+    {
+      "channel_id": "UCE4Gn00XZbpWvGUfIslT-tA",
+      "channel_name": "MagnatesMedia",
+      "handle": "@magnatesmedia"
+    },
+    {
+      "channel_id": "UCxgAuX3XZROujMmGphN_scA",
+      "channel_name": "Mark Tilbury",
+      "handle": "@marktilbury"
+    },
+    {
+      "channel_id": "UCV6KDgJskWaEckne5aPA0aQ",
+      "channel_name": "Graham Stephan",
+      "handle": "@grahamstephan"
+    }
   ]
 }

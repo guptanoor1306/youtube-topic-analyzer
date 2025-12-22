@@ -1,207 +1,177 @@
-# YouTube Topic Identifier
+# YouTube Topic Analyzer
 
-A powerful tool to help identify content topics and formats for your YouTube channel by analyzing your videos and competitor content using AI.
+AI-powered tool to analyze YouTube videos and generate topic suggestions based on proven engagement patterns.
 
 ## Features
 
-- 🎯 **Channel Setup**: Connect your primary YouTube channel (e.g., Zero1 by Zerodha)
-- 📹 **Video Selection**: Select 1-5 videos from your channel for analysis
-- 📄 **PDF Upload**: Optional upload of detailed channel analysis with top videos data
-- 🔍 **Competitor Search**: Search for competitor videos by keyword or channel
-- 🤖 **AI-Powered Suggestions**: Two analysis modes:
-  - **Suggest Series**: Generate series ideas based on your content
-  - **Suggest Format**: Adapt competitor content to your channel's format
-- ✨ **Custom Instructions**: Add additional prompts to guide AI generation
+- **🔍 Channel Search**: Search any YouTube channel and fetch top 100 videos automatically
+- **📹 Video Selection**: Select videos from your channel for AI analysis
+- **🎯 AI Templates**: 5 pre-built analysis templates + custom template builder
+  - **Most Trending**: Topics with high views + discussion
+  - **Anti-Thesis**: Contrarian angles Zero1 could explore
+  - **Pain Points**: Problems your audience needs solved
+  - **Format Recyclers**: Proven formats worth adapting
+  - **Viral Potential**: Topics with shareability
+- **💡 Smart Recommendations**: Each topic includes AI reasoning for why it's recommended
+- **⭐ Favorites System**: Save topics across multiple analysis runs
+- **🎨 Modern UI**: Clean, light-mode interface optimized for content strategists
 
-## Tech Stack
-
-### Backend
-- **FastAPI**: Modern Python web framework
-- **YouTube Data API v3**: Fetch video metadata, transcripts, and comments
-- **OpenAI GPT-4**: AI-powered content analysis and suggestions
-- **PyPDF2**: PDF parsing for channel analysis documents
-
-### Frontend
-- **React**: Component-based UI library
-- **Vite**: Fast build tool and dev server
-- **Tailwind CSS**: Utility-first CSS framework
-- **React Router**: Client-side routing
-- **Axios**: HTTP client for API calls
-- **Lucide React**: Beautiful icon library
-
-## Setup Instructions
+## Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- Node.js 18+
-- YouTube Data API v3 key
-- OpenAI API key
+- Python 3.13+
+- Node.js 16+
+- OpenAI API Key
+- YouTube API Key (optional for reverse engineering)
 
-### Backend Setup
+### 1. Backend Setup
 
-1. Navigate to the backend directory:
 ```bash
 cd backend
-```
-
-2. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
 pip install -r requirements.txt
-```
-
-4. Create a `.env` file from the example:
-```bash
-cp .env.example .env
-```
-
-5. Add your API keys to `.env`:
-```env
-YOUTUBE_API_KEY=your_youtube_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-6. Run the backend server:
-```bash
+cp .env.example .env  # Add your API keys
 python main.py
 ```
 
-The API will be available at `http://localhost:8000`
+Backend runs on: `http://localhost:8000`
 
-### Frontend Setup
+### 2. Frontend Setup
 
-1. Navigate to the frontend directory:
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Run the development server:
-```bash
 npm run dev
 ```
 
-The app will be available at `http://localhost:3000`
+Frontend runs on: `http://localhost:3000`
 
-## Getting API Keys
+## Environment Variables
 
-### YouTube Data API v3 Key
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the YouTube Data API v3
-4. Go to Credentials and create an API key
-5. Copy the API key to your `.env` file
+Create `.env` file in project root:
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+YOUTUBE_API_KEY=your_youtube_api_key_here
+```
 
-### OpenAI API Key
-1. Go to [OpenAI Platform](https://platform.openai.com/)
-2. Sign up or log in
-3. Navigate to API keys section
-4. Create a new API key
-5. Copy the API key to your `.env` file
+**Get Your API Keys:**
+- OpenAI: https://platform.openai.com/api-keys
+- YouTube: https://console.cloud.google.com/apis/credentials
 
-## Usage Flow
+## How It Works
 
-### Method 1: Suggest Series
+### 1. **Search Channel**
+Enter any YouTube channel name (e.g., "Zero1 by Zerodha", "Think School")
 
-1. **Setup Channel**: Enter your channel ID and optionally upload a PDF with channel data
-2. **Select Videos**: Choose 1-5 videos from your channel
-3. **Add Custom Instructions** (Optional): Provide additional context like "Focus on beginner-friendly content"
-4. **Generate**: Click "Suggest Series" to get AI-powered series ideas
+### 2. **Select Videos**
+Browse and select from the channel's top 100 most viewed videos
 
-### Method 2: Suggest Format
+### 3. **Choose Template**
+Pick from 5 AI-powered analysis templates or create your own custom prompt
 
-1. **Setup Channel**: Enter your channel ID
-2. **Select Your Videos**: Choose 1-5 videos from your channel
-3. **Search Competitors**: Use keyword or channel search to find competitor videos
-4. **Select Competitor Videos**: Choose up to 5 competitor videos
-5. **Add Custom Instructions** (Optional): Provide specific requirements
-6. **Generate**: Click "Generate Format Suggestions" to see how to adapt competitor formats
+### 4. **Get Insights**
+View AI-generated topic suggestions with detailed reasoning for each recommendation
 
-## API Endpoints
-
-### Channel Management
-- `POST /api/channel/setup` - Setup primary channel
-- `POST /api/upload-pdf` - Upload channel analysis PDF
-
-### Video Operations
-- `POST /api/videos/details` - Get video details with transcripts and comments
-- `POST /api/search/videos` - Search videos by keyword
-- `POST /api/search/channel` - Search videos from a specific channel
-
-### AI Analysis
-- `POST /api/suggest-series` - Generate series suggestions
-- `POST /api/suggest-format` - Generate format adaptation suggestions
+### 5. **Save Favorites**
+Mark topics you like - they persist across multiple analysis runs
 
 ## Project Structure
 
 ```
 topic-selection/
 ├── backend/
+│   ├── main.py                    # FastAPI server
 │   ├── services/
-│   │   ├── __init__.py
-│   │   ├── youtube_service.py  # YouTube API integration
-│   │   ├── ai_service.py       # OpenAI integration
-│   │   └── pdf_service.py      # PDF parsing
-│   ├── main.py                 # FastAPI application
-│   ├── requirements.txt        # Python dependencies
-│   └── .env.example           # Environment variables template
+│   │   ├── ai_service.py         # OpenAI integration
+│   │   └── youtube_service.py    # YouTube API + transcripts
+│   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── components/        # React components
-│   │   ├── App.jsx           # Main app component
-│   │   ├── main.jsx          # Entry point
-│   │   └── index.css         # Global styles
-│   ├── package.json          # Node dependencies
-│   ├── vite.config.js        # Vite configuration
-│   └── tailwind.config.js    # Tailwind configuration
-├── .gitignore
-└── README.md
+│   │   ├── components/
+│   │   │   ├── Home.jsx                  # Channel search
+│   │   │   ├── NewVideoSelection.jsx     # Video picker
+│   │   │   └── TemplateRunner.jsx        # Analysis & results
+│   │   └── App.jsx
+│   └── package.json
+└── .env                           # API keys (create this)
 ```
 
-## Features in Detail
+## Available Templates
 
-### Custom Instructions
-The new custom instructions feature allows you to:
-- Add specific focus areas (e.g., "Focus on data-driven insights")
-- Set tone preferences (e.g., "Make it more educational")
-- Define target audience (e.g., "Content for beginners")
-- Specify format preferences (e.g., "Short-form, practical videos")
+### 🔥 Most Trending
+Identifies topics currently resonating at scale based on high views and discussion volume.
+- **Weights**: Comments 50%, Views 20%, Title 20%, Thumbnail 10%
 
-The AI will incorporate these instructions into the system prompt for more tailored suggestions.
+### ⚡ Anti-Thesis
+Finds contrarian angles where Zero1 could take an opposing or nuanced stance.
+- **Weights**: Comments 60%, Title 20%, Transcript 20%
 
-## Tips for Best Results
+### 💊 Pain Points
+Surfaces problems and frustrations your audience needs addressed.
+- **Weights**: Comments 70%, Transcript 20%, Title 10%
 
-1. **Select Diverse Videos**: Choose videos covering different topics for better analysis
-2. **Use Custom Instructions**: Be specific about your needs (e.g., "Focus on stock market basics for Indian investors")
-3. **PDF Upload**: Include your channel's top 30 videos data for richer context
-4. **Competitor Selection**: Choose competitors with similar audience but different angles
-5. **Review Suggestions**: Use AI suggestions as inspiration, not absolute rules
+### 🎬 Format Recyclers
+Identifies proven video formats and structures worth adapting.
+- **Weights**: Views 40%, Title 30%, Thumbnail 20%, Transcript 10%
 
-## Troubleshooting
+### 🚀 Viral Potential
+Spots topics with built-in shareability and broad appeal.
+- **Weights**: Views 50%, Comments 30%, Title 20%
 
-### Backend Issues
-- **YouTube API quota exceeded**: Wait 24 hours or use a different API key
-- **OpenAI API errors**: Check your API key and billing status
-- **Transcript not available**: Some videos don't have transcripts; try different videos
+### ⚙️ Custom Template
+Build your own analysis by selecting metadata fields and writing a custom prompt.
 
-### Frontend Issues
-- **CORS errors**: Ensure backend is running on port 8000
-- **Build errors**: Delete `node_modules` and run `npm install` again
+## Tech Stack
+
+**Backend:**
+- FastAPI (Python web framework)
+- OpenAI GPT-4 (AI analysis)
+- YouTube Data API v3 (Channel & video data)
+- youtube-transcript-api (Video transcripts)
+
+**Frontend:**
+- React 18 (UI framework)
+- Vite (Build tool)
+- TailwindCSS (Styling)
+- Lucide Icons (Icon library)
+- Axios (API client)
+
+## Deployment
+
+### Deploy to Vercel
+
+1. **Prepare Your Project:**
+   ```bash
+   git add -A
+   git commit -m "feat: Complete redesign with AI-powered templates"
+   git push origin main
+   ```
+
+2. **Connect to Vercel:**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Vercel will auto-detect the configuration
+
+3. **Add Environment Variables:**
+   In Vercel dashboard, add:
+   - `OPENAI_API_KEY`: Your OpenAI API key
+   - `YOUTUBE_API_KEY`: Your YouTube Data API key
+
+4. **Deploy:**
+   - Vercel will automatically deploy on every push to main
+   - Your app will be live at `https://your-project.vercel.app`
+
+### Local Development
+
+Always create a `.env` file with your API keys before running locally:
+```bash
+cp .env.example .env
+# Edit .env and add your actual API keys
+```
+
+## Support
+
+For issues or questions, check the code comments or API endpoint documentation in `backend/main.py`.
 
 ## License
 
-MIT License - Feel free to use this for your YouTube channel growth!
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
+MIT
