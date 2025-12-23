@@ -108,46 +108,23 @@ const Home = ({ appState, setAppState }) => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-150px)] bg-gradient-to-b from-gray-50 to-white">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-16 mb-12">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-4">
+    <div className="min-h-[calc(100vh-80px)] bg-white">
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        {/* Minimal Header */}
+        <div className="mb-12">
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">
             YouTube Topic Analyzer
           </h1>
-          <p className="text-xl text-red-100 mb-8">
-            Discover winning content ideas from your channel's top videos
+          <p className="text-gray-600">
+            Analyze any YouTube channel to discover winning content ideas
           </p>
-          <div className="flex items-center justify-center gap-8 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <Youtube className="w-4 h-4" />
-              </div>
-              <span>Analyze any channel</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-              <span>AI-powered insights</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <Search className="w-4 h-4" />
-              </div>
-              <span>15+ topic ideas</span>
-            </div>
-          </div>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-8">
-        {/* Channel Search Box */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <Search className="w-6 h-6 text-gray-400" />
-            <h2 className="text-lg font-semibold text-gray-900">Search for a YouTube Channel</h2>
-          </div>
+        {/* Channel Search Box - Main Focus */}
+        <div className="bg-white rounded-lg border border-gray-300 p-6 mb-12 hover:border-gray-400 transition-colors">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Search for a YouTube Channel
+          </label>
           
           <div className="flex gap-3">
             <input
@@ -156,13 +133,13 @@ const Home = ({ appState, setAppState }) => {
               onChange={(e) => setChannelSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleChannelSearch()}
               placeholder="Enter channel name (e.g., Think School, Zero1 by Zerodha)"
-              className="flex-1 px-4 py-3 text-base bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400"
+              className="flex-1 px-4 py-3 text-base bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900 placeholder-gray-400 transition-all"
               disabled={searching}
             />
             <button
               onClick={handleChannelSearch}
               disabled={searching || settingUpChannel || !channelSearchQuery.trim()}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium text-base flex items-center gap-2"
+              className="px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium text-base flex items-center gap-2"
             >
               {searching ? (
                 <>
@@ -172,23 +149,26 @@ const Home = ({ appState, setAppState }) => {
               ) : settingUpChannel ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Loading videos...
+                  Loading...
                 </>
               ) : (
-                'Search'
+                <>
+                  <Search className="w-4 h-4" />
+                  Search
+                </>
               )}
             </button>
           </div>
           
           <p className="mt-3 text-sm text-gray-500">
-            We'll fetch the top 100 videos from this channel for analysis
+            Fetches top 100 videos for AI-powered topic analysis
           </p>
 
           {/* Channel Selection Dropdown */}
           {showChannelDropdown && channelResults.length > 0 && (
-            <div className="mt-4 bg-white rounded-lg border-2 border-blue-500 shadow-xl p-4">
+            <div className="mt-4 bg-white rounded-lg border border-gray-300 shadow-sm p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-sm font-medium text-gray-900">
                   Select a Channel ({channelResults.length} found)
                 </h3>
                 <button
@@ -196,7 +176,7 @@ const Home = ({ appState, setAppState }) => {
                     setShowChannelDropdown(false)
                     setChannelResults([])
                   }}
-                  className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                  className="text-gray-400 hover:text-gray-600 text-lg leading-none"
                 >
                   ✕
                 </button>
@@ -207,30 +187,25 @@ const Home = ({ appState, setAppState }) => {
                     key={channel.channel_id}
                     onClick={() => selectChannel(channel)}
                     disabled={settingUpChannel}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <img
                       src={channel.thumbnail}
                       alt={channel.title}
-                      className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
+                      <p className="font-medium text-gray-900 truncate text-sm">
                         {channel.title}
                       </p>
-                      {channel.description && (
-                        <p className="text-sm text-gray-500 truncate">
-                          {channel.description}
-                        </p>
-                      )}
                       {channel.subscriber_count && (
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-gray-500 mt-0.5">
                           {parseInt(channel.subscriber_count).toLocaleString()} subscribers
                         </p>
                       )}
                     </div>
                     {settingUpChannel && (
-                      <Loader2 className="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
+                      <Loader2 className="w-4 h-4 text-gray-600 animate-spin flex-shrink-0" />
                     )}
                   </button>
                 ))}
@@ -240,15 +215,15 @@ const Home = ({ appState, setAppState }) => {
 
         </div>
 
-        {/* Popular Channels (Cached) */}
+        {/* Popular Channels (Cached) - Keep as is */}
         {!loadingCached && cachedChannels.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+          <div className="bg-white rounded-lg border border-gray-300 p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Popular Channels</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Popular Channels</h2>
                 <p className="text-sm text-gray-600 mt-1">Quick access to recently analyzed channels</p>
               </div>
-              <div className="px-4 py-2 bg-red-50 text-red-700 rounded-lg text-sm font-medium">
+              <div className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md text-sm font-medium">
                 {cachedChannels.length} {cachedChannels.length === 1 ? 'channel' : 'channels'}
               </div>
             </div>
@@ -296,9 +271,9 @@ const Home = ({ appState, setAppState }) => {
 
         {/* Loading State */}
         {loadingCached && (
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-12 text-center">
-            <Loader2 className="w-8 h-8 animate-spin inline-block text-red-600 mb-3" />
-            <p className="text-gray-600">Loading popular channels...</p>
+          <div className="bg-white rounded-lg border border-gray-300 p-12 text-center">
+            <Loader2 className="w-6 h-6 animate-spin inline-block text-gray-600 mb-2" />
+            <p className="text-sm text-gray-600">Loading popular channels...</p>
           </div>
         )}
       </div>
