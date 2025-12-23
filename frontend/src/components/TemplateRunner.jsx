@@ -37,8 +37,10 @@ OBJECTIVE: Based STRICTLY on the selected videos provided, identify new related 
 
 CRITICAL: Analyze ONLY the selected videos provided. Do not assume any channel niche or audience. Base your recommendations entirely on patterns in the provided video data.
 
-OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Why it's trending based on the selected video data"}]`
+OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
+[{"topic": "Topic title", "reason": "Why it's trending based on the selected video data"}]
+
+Include exactly 15 topic suggestions.`
   },
   { 
     id: 'antithesis', 
@@ -72,8 +74,10 @@ CONSTRAINTS:
 - Avoid recycling topics already covered in the selected videos
 - Suggest insightful counter-perspectives, not inflammatory ones
 
-OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Audience contradiction observed and why this deserves a response"}]`
+OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
+[{"topic": "Topic title", "reason": "Audience contradiction observed and why this deserves a response"}]
+
+Include exactly 15 topic suggestions.`
   },
   { 
     id: 'pain_points', 
@@ -107,8 +111,10 @@ CONSTRAINTS:
 - Avoid recycling topics already covered in the selected videos
 - No clickbait or fear-driven framing
 
-OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Specific audience pain point and why this topic addresses it"}]`
+OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
+[{"topic": "Topic title", "reason": "Specific audience pain point and why this topic addresses it"}]
+
+Include exactly 15 topic suggestions.`
   },
   { 
     id: 'format_recyclers', 
@@ -144,8 +150,10 @@ CONSTRAINTS:
 - Avoid topics already covered in the selected videos
 - Stay relevant to the theme/subject of the selected videos
 
-OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Successful format identified and why this new topic fits"}]`
+OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
+[{"topic": "Topic title", "reason": "Successful format identified and why this new topic fits"}]
+
+Include exactly 15 topic suggestions.`
   },
   { 
     id: 'viral_potential', 
@@ -183,8 +191,10 @@ CONSTRAINTS:
 - Avoid sensationalism or misleading angles
 - Focus on topic ideas with genuine value and appeal
 
-OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Viral trigger observed and why this topic has similar potential"}]`
+OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
+[{"topic": "Topic title", "reason": "Viral trigger observed and why this topic has similar potential"}]
+
+Include exactly 15 topic suggestions.`
   },
   { 
     id: 'series_generation', 
@@ -232,7 +242,7 @@ For each suggestion, explain:
 
 CRITICAL RULES:
 - The title format/structure is MORE important than the specific topic
-- ALL 10 suggestions must follow the SAME title pattern as the selected videos
+- ALL 15 suggestions must follow the SAME title pattern as the selected videos
 - Do NOT suggest topics already covered in the selected videos
 - Stay within the same subject area and complexity level
 - If only 1-2 videos are selected, extract the format and extrapolate intelligently
