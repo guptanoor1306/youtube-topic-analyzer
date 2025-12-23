@@ -109,9 +109,9 @@ const Home = ({ appState, setAppState }) => {
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gray-50">
-      <div className="max-w-5xl mx-auto px-6 py-16">
+      <div className="max-w-5xl mx-auto px-6 py-12">
         {/* Minimal Header with Red Accent */}
-        <div className="mb-16">
+        <div className="mb-8">
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">
             <span className="text-red-600">YouTube</span> Topic Analyzer
           </h1>
@@ -121,7 +121,7 @@ const Home = ({ appState, setAppState }) => {
         </div>
 
         {/* Channel Search Box - Main Visual Anchor */}
-        <div className="bg-white rounded-xl p-8 mb-16 shadow-sm">
+        <div className="bg-white rounded-xl p-8 mb-12 shadow-sm border border-gray-200">
           <label className="block text-sm font-medium text-gray-900 mb-4">
             Search for a YouTube Channel
           </label>
