@@ -192,7 +192,7 @@ Return ONLY a JSON array of objects with this format:
     icon: RefreshCw,
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
-    metadata: { title: 30, thumbnail: 20, views: 30, outlier_score: 20 },
+    metadata: { title: 40, thumbnail: 30, views: 30 },
     description: 'Identify series patterns and suggest new episodes that fit the same theme',
     prompt: `You are a senior content strategist analyzing YouTube video series patterns.
 

@@ -248,11 +248,11 @@ Provide your response in JSON format:
             response = self.client.chat.completions.create(
                 model=model,
                 messages=[
-                    {"role": "system", "content": "You are a senior content strategist analyzing YouTube videos."},
+                    {"role": "system", "content": "You are a helpful assistant that provides analysis in the exact format requested."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=temperature,
-                max_tokens=3000
+                max_tokens=4000  # Increased for longer responses
             )
             
             return response.choices[0].message.content

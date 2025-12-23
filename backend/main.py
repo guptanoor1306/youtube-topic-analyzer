@@ -195,44 +195,57 @@ class TemplateAnalysisRequest(BaseModel):
 async def analyze_with_template(request: TemplateAnalysisRequest):
     """Analyze videos with a specific template"""
     try:
-        print(f"🔍 Fetching transcripts and comments for {len(request.video_ids)} videos...")
+        print(f"🔍 Fetching data for {len(request.video_ids)} videos...")
         
-        # Fetch transcripts and comments in parallel
-        video_data = await youtube_service.get_video_data_parallel(request.video_ids, max_comments=50)
+        # Fetch video info AND transcripts/comments in parallel
+        import asyncio
+        video_info_tasks = [youtube_service.get_video_info(vid) for vid in request.video_ids]
+        video_data_task = youtube_service.get_video_data_parallel(request.video_ids, max_comments=50)
         
-        # Build context for AI
+        video_infos, video_data_map = await asyncio.gather(
+            asyncio.gather(*video_info_tasks, return_exceptions=True),
+            video_data_task
+        )
+        
+        # Build comprehensive context with ALL metadata
         context_parts = []
-        for video_id in request.video_ids:
-            data = video_data.get(video_id, {})
+        context_parts.append("=== VIDEO DATA ===\n")
+        
+        for i, video_id in enumerate(request.video_ids):
+            video_info = video_infos[i]
+            if isinstance(video_info, Exception):
+                print(f"⚠️ Skipping video {video_id} due to error: {video_info}")
+                continue
+                
+            data = video_data_map.get(video_id, {})
             transcript = data.get('transcript', '')
             comments = data.get('comments', [])
             
+            context_parts.append(f"\n--- VIDEO {i+1} ---")
+            context_parts.append(f"Title: {video_info.get('title', 'N/A')}")
+            context_parts.append(f"Views: {video_info.get('view_count', 0):,}")
+            context_parts.append(f"Thumbnail: {video_info.get('thumbnail', 'N/A')}")
+            
             if transcript:
-                context_parts.append(f"Video {video_id}:")
-                context_parts.append(f"Transcript: {transcript[:2000]}...")  # First 2000 chars
-                
-                if comments:
-                    comment_texts = [c.get('text', '') for c in comments[:20]]  # Top 20 comments
-                    context_parts.append(f"Top Comments: {' | '.join(comment_texts)}")
-                
-                context_parts.append("\n---\n")
+                # Include more transcript for better analysis
+                context_parts.append(f"\nTranscript (first 3000 chars):\n{transcript[:3000]}")
+            
+            if comments:
+                comment_texts = []
+                for c in comments[:20]:  # Top 20 comments
+                    text = c.get('text', '')
+                    likes = c.get('like_count', 0)
+                    comment_texts.append(f"[{likes} likes] {text}")
+                context_parts.append(f"\nTop Comments:\n" + "\n".join(comment_texts))
+            
+            context_parts.append("\n")
         
         full_context = "\n".join(context_parts)
         
-        # Run AI analysis
+        # Run AI analysis - use ONLY the template prompt, no additional instructions
         analysis_prompt = f"""{request.custom_prompt}
 
-Based on the following video content, provide 6-8 specific topic suggestions with reasons:
-
 {full_context}
-
-CRITICAL: Return ONLY a valid JSON array of objects with this exact format:
-[
-  {{"topic": "Topic Title Here", "reason": "1-2 sentence explanation of why this topic is recommended"}},
-  {{"topic": "Another Topic", "reason": "Explanation here"}}
-]
-
-Do not include any markdown formatting, code blocks, or additional text. Just the raw JSON array.
 """
         
         print(f"🤖 Running AI analysis with template: {request.template_id}")
