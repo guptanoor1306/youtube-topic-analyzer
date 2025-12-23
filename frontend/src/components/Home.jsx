@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Loader2, Youtube } from 'lucide-react'
+import { Search, Loader2, Youtube, TrendingUp } from 'lucide-react'
 import axios from 'axios'
 import { API_BASE_URL } from '../config'
 
@@ -108,20 +108,42 @@ const Home = ({ appState, setAppState }) => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-150px)] flex flex-col items-center py-12 px-4">
-      <div className="w-full max-w-2xl mx-auto">
-        {/* Main Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+    <div className="min-h-[calc(100vh-150px)] bg-gradient-to-b from-gray-50 to-white">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-16 mb-12">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h1 className="text-5xl font-bold mb-4">
             YouTube Topic Analyzer
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-xl text-red-100 mb-8">
             Discover winning content ideas from your channel's top videos
           </p>
+          <div className="flex items-center justify-center gap-8 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                <Youtube className="w-4 h-4" />
+              </div>
+              <span>Analyze any channel</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <span>AI-powered insights</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                <Search className="w-4 h-4" />
+              </div>
+              <span>15+ topic ideas</span>
+            </div>
+          </div>
         </div>
+      </div>
 
+      <div className="max-w-4xl mx-auto px-4 -mt-8">
         {/* Channel Search Box */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-12">
           <div className="flex items-center gap-3 mb-4">
             <Search className="w-6 h-6 text-gray-400" />
             <h2 className="text-lg font-semibold text-gray-900">Search for a YouTube Channel</h2>
@@ -220,8 +242,16 @@ const Home = ({ appState, setAppState }) => {
 
         {/* Popular Channels (Cached) */}
         {!loadingCached && cachedChannels.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Popular Channels</h2>
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Popular Channels</h2>
+                <p className="text-sm text-gray-600 mt-1">Quick access to recently analyzed channels</p>
+              </div>
+              <div className="px-4 py-2 bg-red-50 text-red-700 rounded-lg text-sm font-medium">
+                {cachedChannels.length} {cachedChannels.length === 1 ? 'channel' : 'channels'}
+              </div>
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {cachedChannels.map((channel) => (
                 <button
@@ -232,21 +262,21 @@ const Home = ({ appState, setAppState }) => {
                     thumbnail: `https://yt3.ggpht.com/ytc/default_${channel.channel_id}`
                   })}
                   disabled={settingUpChannel}
-                  className="group flex flex-col items-center gap-3 p-4 bg-white rounded-xl hover:shadow-lg border border-gray-200 hover:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group flex flex-col items-center gap-3 p-5 bg-gray-50 rounded-xl hover:shadow-lg hover:bg-white border-2 border-transparent hover:border-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   title={channel.channel_title}
                 >
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 group-hover:border-blue-500 transition-colors shadow-md">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-3 border-gray-200 group-hover:border-red-500 group-hover:scale-110 transition-all shadow-lg">
                     <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
-                      <Youtube className="w-8 h-8 text-white" />
+                      <Youtube className="w-10 h-10 text-white" />
                     </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-900 truncate max-w-full">
+                  <div className="text-center w-full">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
                       {channel.channel_title}
                     </p>
                     {channel.video_count > 0 && (
                       <p className="text-xs text-gray-500 mt-1">
-                        {channel.video_count} videos
+                        {channel.video_count} videos cached
                       </p>
                     )}
                   </div>
@@ -258,9 +288,9 @@ const Home = ({ appState, setAppState }) => {
 
         {/* Loading State */}
         {loadingCached && (
-          <div className="mt-8 text-center text-sm text-gray-400">
-            <Loader2 className="w-5 h-5 animate-spin inline-block mr-2" />
-            Loading popular channels...
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-12 text-center">
+            <Loader2 className="w-8 h-8 animate-spin inline-block text-red-600 mb-3" />
+            <p className="text-gray-600">Loading popular channels...</p>
           </div>
         )}
       </div>
