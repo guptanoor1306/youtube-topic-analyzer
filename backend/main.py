@@ -21,8 +21,13 @@ from database import init_db, get_db
 # Force load .env file and override any existing environment variables
 load_dotenv(override=True)
 
-# Initialize database
-init_db()
+# Initialize database with error handling
+try:
+    init_db()
+    print("✅ Database initialized successfully")
+except Exception as e:
+    print(f"⚠️ Database initialization warning: {e}")
+    print("💡 Will attempt to create tables on first use")
 
 # Print Railway environment info for debugging
 import sys
@@ -442,8 +447,32 @@ async def analyze_with_template(request: TemplateAnalysisRequest, db: Session = 
             )
         
     except Exception as e:
-        print(f"❌ Template analysis error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        print(f"❌ Template analysis error: {error_msg}")
+        
+        # Provide more specific error messages
+        if "quota" in error_msg.lower():
+            raise HTTPException(
+                status_code=500, 
+                detail="YouTube API quota exceeded. Please wait or use a different API key."
+            )
+        elif "api" in error_msg.lower() and "key" in error_msg.lower():
+            raise HTTPException(
+                status_code=500, 
+                detail="YouTube API key error. Please check your YOUTUBE_API_KEY environment variable."
+            )
+        elif "openai" in error_msg.lower():
+            raise HTTPException(
+                status_code=500, 
+                detail="OpenAI API error. Please check your OPENAI_API_KEY environment variable."
+            )
+        elif "database" in error_msg.lower() or "connection" in error_msg.lower():
+            raise HTTPException(
+                status_code=500, 
+                detail="Database connection error. The service may be starting up. Please try again in a moment."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=error_msg)
 
 
 @app.post("/api/upload-pdf")

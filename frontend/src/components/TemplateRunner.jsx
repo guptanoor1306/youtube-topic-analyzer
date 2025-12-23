@@ -292,7 +292,7 @@ const TemplateRunner = ({ appState, setAppState }) => {
   
   // Editable prompt state
   const [editablePrompt, setEditablePrompt] = useState('')
-  const [showPromptEditor, setShowPromptEditor] = useState(true)
+  const [showPromptEditor, setShowPromptEditor] = useState(false)
 
   useEffect(() => {
     // Redirect if no videos selected
@@ -382,8 +382,21 @@ const TemplateRunner = ({ appState, setAppState }) => {
       }
     } catch (error) {
       console.error('Analysis error:', error)
-      const errorMessage = error.response?.data?.detail || error.message || 'Unknown error'
-      alert(`Failed to run analysis: ${errorMessage}\n\nPlease try again.`)
+      
+      // Extract detailed error message
+      let errorMessage = error.response?.data?.detail || error.message || 'Unknown error'
+      let userFriendlyMessage = errorMessage
+      
+      // Check for common API key errors
+      if (errorMessage.includes('API') || errorMessage.includes('quota') || errorMessage.includes('key')) {
+        userFriendlyMessage = `🔑 API Configuration Issue\n\n${errorMessage}\n\nPossible causes:\n• YouTube API key is invalid or expired\n• OpenAI API key is missing or invalid\n• API quota exceeded\n\nPlease check your API keys in the Railway environment variables.`
+      } else if (errorMessage.includes('database') || errorMessage.includes('connection')) {
+        userFriendlyMessage = `💾 Database Connection Issue\n\n${errorMessage}\n\nThe backend may be initializing. Please wait a moment and try again.`
+      } else if (errorMessage.includes('500')) {
+        userFriendlyMessage = `⚠️ Server Error (500)\n\n${errorMessage}\n\nPossible causes:\n• Backend is starting up (wait 30 seconds)\n• API keys not configured\n• Database connection issue\n\nCheck Railway logs for details.`
+      }
+      
+      alert(userFriendlyMessage)
     } finally {
       setLoading(false)
     }
@@ -590,51 +603,50 @@ const TemplateRunner = ({ appState, setAppState }) => {
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-
-            {/* Prompt Editor */}
-            {currentTemplate && !currentTemplate.isCustom && editablePrompt && (
-              <div className="bg-white rounded-xl border border-gray-200 mb-4">
-                <button
-                  onClick={() => setShowPromptEditor(!showPromptEditor)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-gray-600" />
-                    <span className="font-semibold text-gray-900">Template Prompt</span>
-                    <span className="text-xs text-gray-500">(Click to {showPromptEditor ? 'hide' : 'show'} & edit)</span>
-                  </div>
-                  {showPromptEditor ? (
-                    <ChevronUp className="w-5 h-5 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-500" />
-                  )}
-                </button>
-                
-                {showPromptEditor && (
-                  <div className="p-4 pt-0 border-t border-gray-200">
-                    <textarea
-                      value={editablePrompt}
-                      onChange={(e) => setEditablePrompt(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors font-mono text-sm resize-y"
-                      rows={12}
-                      placeholder="Enter your prompt here..."
-                    />
-                    <div className="flex items-center gap-2 mt-3">
-                      <button
-                        onClick={() => setEditablePrompt(currentTemplate.prompt)}
-                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                      >
-                        Reset to Default
-                      </button>
-                      <div className="flex-1"></div>
-                      <span className="text-xs text-gray-500">{editablePrompt.length} characters</span>
-                    </div>
+                {/* Prompt Editor - Inline */}
+                {currentTemplate && !currentTemplate.isCustom && editablePrompt && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <button
+                      onClick={() => setShowPromptEditor(!showPromptEditor)}
+                      className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-700">Template Prompt</span>
+                        <span className="text-xs text-gray-400">(Click to {showPromptEditor ? 'hide' : 'edit'})</span>
+                      </div>
+                      {showPromptEditor ? (
+                        <ChevronUp className="w-4 h-4 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      )}
+                    </button>
+                    
+                    {showPromptEditor && (
+                      <div className="px-4 pb-3 mt-2">
+                        <textarea
+                          value={editablePrompt}
+                          onChange={(e) => setEditablePrompt(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors font-mono text-xs resize-y"
+                          rows={10}
+                          placeholder="Enter your prompt here..."
+                        />
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            onClick={() => setEditablePrompt(currentTemplate.prompt)}
+                            className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                          >
+                            Reset to Default
+                          </button>
+                          <div className="flex-1"></div>
+                          <span className="text-xs text-gray-400">{editablePrompt.length} characters</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
+            </div>
 
             {/* Results Container */}
             <div className="bg-white rounded-xl border border-gray-200">
