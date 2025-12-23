@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Loader2, Youtube, TrendingUp } from 'lucide-react'
+import { Search, Loader2, Youtube } from 'lucide-react'
 import axios from 'axios'
 import { API_BASE_URL } from '../config'
 
@@ -11,8 +11,24 @@ const Home = ({ appState, setAppState }) => {
   const [channelResults, setChannelResults] = useState([])
   const [showChannelDropdown, setShowChannelDropdown] = useState(false)
   const [settingUpChannel, setSettingUpChannel] = useState(false)
+  const [cachedChannels, setCachedChannels] = useState([])
+  const [loadingCached, setLoadingCached] = useState(true)
 
-  // No auto-setup needed - user will search and select
+  // Fetch cached channels on mount
+  useEffect(() => {
+    fetchCachedChannels()
+  }, [])
+
+  const fetchCachedChannels = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/cache/channels`)
+      setCachedChannels(response.data.channels || [])
+    } catch (error) {
+      console.error('Error fetching cached channels:', error)
+    } finally {
+      setLoadingCached(false)
+    }
+  }
 
   const handleChannelSearch = async () => {
     if (!channelSearchQuery.trim()) {
@@ -89,17 +105,11 @@ const Home = ({ appState, setAppState }) => {
 
   return (
     <div className="min-h-[calc(100vh-150px)] flex flex-col items-center justify-center py-12 px-4">
-      {/* Hero Section */}
-      <div className="text-center mb-12 max-w-2xl mx-auto">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-red-600 rounded-2xl mb-6 shadow-lg">
-          <Youtube className="w-12 h-12 text-white" />
+      {/* YouTube Logo Only */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-24 h-24 bg-red-600 rounded-3xl shadow-2xl">
+          <Youtube className="w-14 h-14 text-white" />
         </div>
-        <h1 className="text-5xl font-bold text-gray-900 mb-4">
-          YouTube Topic Analyzer
-        </h1>
-        <p className="text-xl text-gray-600 mb-8">
-          Discover winning content ideas from your channel's top videos
-        </p>
       </div>
 
       {/* Channel Search Box */}
@@ -199,31 +209,42 @@ const Home = ({ appState, setAppState }) => {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Features */}
-      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mb-4">
-            <Youtube className="w-6 h-6 text-blue-600" />
+        {/* Cached Channels */}
+        {cachedChannels.length > 0 && (
+          <div className="mt-6">
+            <p className="text-sm text-gray-500 mb-3 text-center">Recently analyzed channels:</p>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              {cachedChannels.map((channel) => (
+                <button
+                  key={channel.channel_id}
+                  onClick={() => selectChannel({
+                    channel_id: channel.channel_id,
+                    title: channel.channel_title,
+                    thumbnail: `https://yt3.ggpht.com/ytc/default_${channel.channel_id}`
+                  })}
+                  disabled={settingUpChannel}
+                  className="group relative flex flex-col items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={channel.channel_title}
+                >
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 group-hover:border-blue-500 transition-colors shadow-sm">
+                    <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                      <Youtube className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-600 max-w-[80px] truncate">
+                    {channel.channel_title}
+                  </span>
+                  {channel.video_count && (
+                    <span className="text-xs text-gray-400">
+                      {channel.video_count} videos
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Select Videos</h3>
-          <p className="text-sm text-gray-600">Choose from top 100 videos to analyze</p>
-        </div>
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mb-4">
-            <TrendingUp className="w-6 h-6 text-green-600" />
-          </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Run Templates</h3>
-          <p className="text-sm text-gray-600">Apply AI templates to find patterns</p>
-        </div>
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-xl mb-4">
-            <Search className="w-6 h-6 text-purple-600" />
-          </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Get Insights</h3>
-          <p className="text-sm text-gray-600">Discover trending topics and gaps</p>
-        </div>
+        )}
       </div>
     </div>
   )

@@ -275,6 +275,27 @@ async def get_cache_stats(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/cache/channels")
+async def get_cached_channels(db: Session = Depends(get_db)):
+    """Get list of all cached channels for quick access"""
+    try:
+        from database import ChannelCache
+        channels = db.query(ChannelCache).order_by(ChannelCache.updated_at.desc()).limit(10).all()
+        
+        return {
+            "success": True,
+            "channels": [{
+                "channel_id": ch.channel_id,
+                "channel_title": ch.channel_title,
+                "subscriber_count": ch.subscriber_count,
+                "video_count": len(ch.videos) if ch.videos else 0,
+                "cached_at": ch.updated_at.isoformat() if ch.updated_at else None
+            } for ch in channels]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 class TemplateAnalysisRequest(BaseModel):
     video_ids: List[str]
     template_id: str
