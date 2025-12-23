@@ -13,18 +13,32 @@ const TEMPLATES = [
     bgColor: 'bg-orange-50',
     metadata: { comments: 50, views: 20, title: 20, thumbnail: 10 },
     description: 'Identify topics currently resonating at scale — high views + discussion',
-    prompt: `You are a senior content strategist for Zero1 — a YouTube channel that explains personal finance and money psychology to India's young salaried audience (22–35). 
+    prompt: `You are a senior content strategist analyzing YouTube video performance data.
 
-Your task is to identify *high-potential new video topics* using a structured weighted analysis across these dimensions: 
+Your task is to identify *high-potential new video topics* using a structured weighted analysis of the provided videos.
 
-INPUT DATA (provided for each of the top 12–40 Zero1 videos): - Video title - Thumbnail screenshot - View count - Top comments (with like counts) 
+INPUT DATA (provided for each video):
+- Video title
+- Thumbnail screenshot  
+- View count
+- Top comments (with like counts)
 
-WEIGHTED ANALYSIS: Use the following weights to guide your selection of promising patterns: - View count → 20% weight: Look for unusually high-performing videos - Comment quality & volume → 50%: Prioritize recurring requests, emotional reactions, or insightful objections (esp. >30 likes) - Title phrasing → 20%: Note which phrases or formats (e.g., "vs", "What no one tells you…") consistently drive clicks - Thumbnail cues → 10%: Observe repeated color schemes, comparisons, or visual gimmicks that correlate with performance 
+WEIGHTED ANALYSIS: Use the following weights to guide your selection of promising patterns:
+- View count → 20% weight: Look for unusually high-performing videos relative to the channel average
+- Comment quality & volume → 50%: Prioritize recurring requests, emotional reactions, questions, or insightful discussions (especially comments with high likes)
+- Title phrasing → 20%: Note which phrases or formats (e.g., "vs", "How to", "What happens when...") consistently drive engagement
+- Thumbnail cues → 10%: Observe repeated visual patterns that correlate with performance
 
-OBJECTIVE: Find new topics based on your above analysis which have the potential of doing well on Zero1 and should not be those which are already covered by Zero1. These topics should be most trending as per Zero1's audience preferences 
+OBJECTIVE: Based STRICTLY on the selected videos provided, identify new related topics that:
+1. Build on themes present in the selected videos
+2. Address questions or interests expressed in the comments
+3. Have potential to perform well based on observed patterns
+4. Are NOT already covered in the selected videos (suggest new angles or extensions)
+
+CRITICAL: Analyze ONLY the selected videos provided. Do not assume any channel niche or audience. Base your recommendations entirely on patterns in the provided video data.
 
 Return ONLY a JSON array of objects with this format:
-[{"topic": "Topic title", "reason": "Why it's trending with weighted evidence"}]`
+[{"topic": "Topic title", "reason": "Why it's trending based on the selected video data"}]`
   },
   { 
     id: 'antithesis', 
@@ -34,18 +48,32 @@ Return ONLY a JSON array of objects with this format:
     bgColor: 'bg-yellow-50',
     metadata: { comments: 90, title: 10 },
     description: 'Spot where audiences are pushing back or misinterpreting — to flip perspective',
-    prompt: `You are a senior content strategist at Zero1 — a YouTube channel that demystifies personal finance and money psychology for India's young salaried professionals (ages 22–35). Your task is to extract high-potential *anti-thesis* topics — content ideas that arise from audience disagreement, misinterpretation, or pushback against existing videos. 
+    prompt: `You are a senior content strategist analyzing YouTube audience engagement.
 
-INPUT: You are provided with metadata from Zero1's video library: - Video title - Top comments (with like counts) 
+Your task is to extract high-potential *anti-thesis* topics — content ideas that arise from audience disagreement, misinterpretation, or pushback against the selected videos.
 
-OBJECTIVE: Identify high-engagement **contrarian themes** by analyzing: - Comments (90% weight): Look for replies that express disagreement, confusion, sarcasm, pushback, or "but what about..." arguments. Prioritize comments with 50+ likes, long discussions, or repeated objections across multiple videos. - Title (10% weight): Spot provocative framings that might have triggered emotional or polarizing responses. 
+INPUT: You are provided with metadata from the selected videos:
+- Video title
+- Top comments (with like counts)
 
-Your job is to: 1. Detect **anti-thesis cues** — misunderstandings, disagreements, or inverted takes from the audience 2. Translate those into **new content topics** that address, challenge, or flip the original message 3. Ensure the new topics remain aligned with Zero1's tone: clear, curious, psychologically grounded — not fear-based, scam-focused, or sensational 
+WEIGHTED ANALYSIS:
+- Comments (90% weight): Look for replies that express disagreement, confusion, alternative viewpoints, or "but what about..." arguments. Prioritize comments with high likes, long discussions, or repeated objections.
+- Title (10% weight): Note video titles that might have triggered emotional or polarizing responses.
 
-CONSTRAINTS - Focus strictly on **topics**, not formats or structure - Avoid recycling past topics unless offering a *fresh reversal or clarification* - Do not use clickbait or negative framing — the anti-thesis must be *insightful*, not inflammatory 
+YOUR JOB:
+1. Detect **anti-thesis cues** — misunderstandings, disagreements, or alternative perspectives from viewers
+2. Translate those into **new content topics** that address, challenge, or flip the original message
+3. Ensure the new topics offer genuine value — not inflammatory clickbait
+
+CRITICAL: Base your analysis ONLY on the selected videos and their actual comments. Do not assume channel niche or make up audience perspectives.
+
+CONSTRAINTS:
+- Focus strictly on **topics**, not formats or structure
+- Avoid recycling topics already covered in the selected videos
+- Suggest insightful counter-perspectives, not inflammatory ones
 
 Return ONLY a JSON array of objects with this format:
-[{"topic": "Topic title", "reason": "Audience contradiction and why this needs a response"}]`
+[{"topic": "Topic title", "reason": "Audience contradiction observed and why this deserves a response"}]`
   },
   { 
     id: 'pain_points', 
@@ -54,19 +82,33 @@ Return ONLY a JSON array of objects with this format:
     color: 'text-red-600',
     bgColor: 'bg-red-50',
     metadata: { comments: 60, transcript: 40 },
-    description: 'Discover recurring problems users share — lifestyle, money stress, confusion',
-    prompt: `You are a senior strategist at Zero1 — a YouTube channel that demystifies personal finance and money psychology for India's young salaried audience (ages 22–35). Your goal is to uncover *real money-related pain points* — struggles, frustrations, or life-stage dilemmas — that deeply resonate with the audience.
+    description: 'Discover recurring problems users share in comments and content',
+    prompt: `You are a senior content strategist analyzing YouTube audience pain points.
 
-INPUT: You have access to the following metadata for each video: - Top comments (with like counts) - Transcript (or intro for Shorts)
+Your goal is to uncover *real problems, struggles, or frustrations* expressed by viewers of the selected videos.
 
-OBJECTIVE: Surface **specific, high-emotion user struggles** using this weighted framework: - Comments (60%): Prioritize emotionally charged, high-like-count comments that highlight dilemmas, stress triggers, or pleas for clarity. Look for phrases like "I'm going through this," "this is so confusing," "any tips for…," or repeated frustrations across multiple videos. - Transcript (40%): Pinpoint which parts of the video triggered these reactions. Focus on stories, questions, or facts that provoked emotional responses or showed clear audience identification.
+INPUT: You have access to the following metadata for each selected video:
+- Top comments (with like counts)
+- Video transcript
 
-Your job is to: 1. Identify **repeat emotional or practical problems** 2. Translate them into **new, resonant topic ideas** that provide clarity, solutions, or simply emotional validation 3. Ensure each topic maintains Zero1's calm, clear tone — avoid clickbait, fear, or cringe
+WEIGHTED ANALYSIS:
+- Comments (60%): Prioritize emotionally charged or high-engagement comments that reveal problems, confusion, or requests for help. Look for phrases like "I'm struggling with...", "How do I...", "This is confusing", "I wish you covered...", or repeated questions across videos.
+- Transcript (40%): Identify which parts of the video content triggered these reactions. Note topics or questions that generated strong audience identification or emotional responses.
 
-CONSTRAINTS - Focus strictly on **topics**, not formats or structure - Avoid recycling past topics unless offering a *genuinely new lens or emotional entry point* - Do not use scam-based or fear-driven framing
+YOUR JOB:
+1. Identify **recurring problems or questions** expressed by viewers
+2. Translate them into **new topic ideas** that address these pain points
+3. Ensure topics offer genuine value — clarity, solutions, or guidance
+
+CRITICAL: Analyze ONLY the selected videos provided. Base pain points entirely on actual viewer comments and content, not assumptions about channel niche.
+
+CONSTRAINTS:
+- Focus strictly on **topics**, not formats
+- Avoid recycling topics already covered in the selected videos
+- No clickbait or fear-driven framing
 
 Return ONLY a JSON array of objects with this format:
-[{"topic": "Topic title", "reason": "Real audience struggle and why this topic offers value"}]`
+[{"topic": "Topic title", "reason": "Specific audience pain point and why this topic addresses it"}]`
   },
   { 
     id: 'format_recyclers', 
@@ -76,18 +118,34 @@ Return ONLY a JSON array of objects with this format:
     bgColor: 'bg-green-50',
     metadata: { title: 35, thumbnail: 25, transcript: 40 },
     description: 'Identify formats or structures that worked, not just topics',
-    prompt: `You are a senior strategist at Zero1 — a YouTube channel that demystifies personal finance and money psychology for India's young salaried audience (ages 22–35). Your task is to identify **repeatable content formats** that consistently perform well and apply them to **completely new topics** that Zero1 has not yet explored.
+    prompt: `You are a senior content strategist analyzing YouTube video formats and structures.
 
-INPUT: For each video, you are given: - Title - Thumbnail screenshot - Transcript
+Your task is to identify **repeatable content formats** that perform well in the selected videos, then suggest new topics using those same formats.
 
-OBJECTIVE: Your goal is to identify **format patterns**, not topics. Use the following weighted analysis: - Transcript (40%): Study narrative flow — e.g., before–after contrast, personal challenge → resolution, myth → truth, checklists, frameworks, psychological story arcs, or reveal-based builds. - Title (35%): Extract title structures that imply formats — e.g., "X vs Y," "How I did X," "X things no one tells you…," "You're doing X wrong." - Thumbnail (25%): Observe structural visual cues — checklist blocks, item reveals, head-to-head labels, transformation cues, etc.
+INPUT: For each selected video, you are given:
+- Title
+- Thumbnail screenshot
+- Transcript
 
-Then, propose **new topics** that: - Use one of these high-performing formats - Have **not been covered yet** on the Zero1 channel - Still match Zero1's calm, sharp, psychologically grounded tone
+WEIGHTED ANALYSIS:
+- Transcript (40%): Study narrative structures and content flow — e.g., comparison/contrast, step-by-step guide, myth-busting, checklist format, problem→solution, story arc, numbered lists, before/after.
+- Title (35%): Extract title structures — e.g., "X vs Y", "How to X", "X things about Y", "Why X doesn't work", "The truth about X", "X mistakes to avoid".
+- Thumbnail (25%): Observe visual structure cues — comparison layouts, numbered lists, question marks, before/after splits, text overlays.
 
-CONSTRAINTS - Focus strictly on topic suggestions — not visual thumbnails or title rewrites - ❌ Strictly exclude topics already explored on Zero1 - ❌ Avoid cringe, scam-busting, or fear-based hooks
+YOUR JOB:
+1. Identify successful **format patterns** (not topics) from the selected videos
+2. Propose **new topics** that use these proven formats
+3. Ensure new topics are related to the theme of the selected videos but offer fresh angles
+
+CRITICAL: Base your analysis ONLY on the selected videos. Identify formats that worked in THESE videos, and suggest related new topics using those formats.
+
+CONSTRAINTS:
+- Focus on topic suggestions using successful formats
+- Avoid topics already covered in the selected videos
+- Stay relevant to the theme/subject of the selected videos
 
 Return ONLY a JSON array of objects with this format:
-[{"topic": "Topic title", "reason": "Repeatable format used and why this topic is fresh"}]`
+[{"topic": "Topic title", "reason": "Successful format identified and why this new topic fits"}]`
   },
   { 
     id: 'viral_potential', 
@@ -97,18 +155,36 @@ Return ONLY a JSON array of objects with this format:
     bgColor: 'bg-purple-50',
     metadata: { views: 40, comments: 30, title: 20, thumbnail: 10 },
     description: 'Identify topics with shareability, intrigue, or relatability',
-    prompt: `You are a senior strategist at Zero1 — a YouTube channel that explores personal finance and money psychology for India's young salaried professionals (ages 22–35). Your job is to identify **new video topics with high viral potential**, using a combination of emotional response, curiosity triggers, and mass relatability — without relying on drama or fear.
+    prompt: `You are a senior content strategist analyzing viral YouTube content patterns.
 
-INPUT: Each video contains: - View count - Top comments (with like counts) - Title - Thumbnail screenshot
+Your job is to identify **new topic ideas with high viral potential** based on patterns in the selected high-performing videos.
 
-OBJECTIVE: Use the following weighted signals to identify patterns behind viral performance: - Views (40%): Prioritize videos with unusually high view counts for the channel (especially within first 7–14 days), suggesting a breakout topic. - Comments (30%): Find high-like comments that say "I needed this," "why don't people talk about this?", or prompt mass tagging/sharing behavior. - Title (20%): Identify curiosity-first framings that might have boosted CTR (e.g. "versus," "hidden," "no one tells you," etc.). - Thumbnail (10%): Spot thumbnails that use emotional contrast, sharp comparisons, or striking visuals to stand out.
+INPUT: Each selected video contains:
+- View count
+- Top comments (with like counts)
+- Title
+- Thumbnail screenshot
 
-Use these patterns to propose **new, never-before-covered topics** with similar viral signals — especially ones that evoke strong reactions, curiosity, or "everyone should know this" behavior.
+WEIGHTED ANALYSIS:
+- Views (40%): Prioritize videos with unusually high view counts relative to others, suggesting topics with broad appeal or curiosity factor.
+- Comments (30%): Look for high-engagement comments expressing strong reactions, curiosity, sharing behavior, or "everyone needs to see this" sentiment.
+- Title (20%): Identify curiosity-triggering title patterns — e.g., "versus," "truth about," "no one tells you," "what happens when," surprising facts or revelations.
+- Thumbnail (10%): Note thumbnails with emotional contrast, dramatic visuals, or compelling text that stands out.
 
-CONSTRAINTS - ✅ Suggest new topics only (no repeats of existing Zero1 videos) - ✅ Avoid scammy, cringe, or fear-based angles - ✅ Focus on *topic ideas* — not content formats or thumbnail design
+YOUR JOB:
+1. Identify what made certain videos in the selection perform exceptionally well
+2. Extract viral triggers — curiosity, controversy, relatability, surprising information, emotional resonance
+3. Propose **new related topics** with similar viral potential
+
+CRITICAL: Analyze ONLY the selected videos. Base recommendations on actual performance patterns observed in this specific video set.
+
+CONSTRAINTS:
+- Suggest new topics only (not covered in selected videos)
+- Avoid sensationalism or misleading angles
+- Focus on topic ideas with genuine value and appeal
 
 Return ONLY a JSON array of objects with this format:
-[{"topic": "Topic title", "reason": "Viral trigger and why it's likely to go viral"}]`
+[{"topic": "Topic title", "reason": "Viral trigger observed and why this topic has similar potential"}]`
   },
   { 
     id: 'custom', 
