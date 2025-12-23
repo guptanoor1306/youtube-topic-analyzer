@@ -359,41 +359,18 @@ async def analyze_with_template(request: TemplateAnalysisRequest):
                     "videos_analyzed": len(request.video_ids)
                 }
             
-            # Last resort fallback
-            print("⚠️  All parsing methods failed, using basic line extraction")
-            lines = [line.strip() for line in response.split('\n') if line.strip()]
-            topics = []
-            for line in lines:
-                cleaned = line.lstrip('0123456789.-•* ').strip('"\'[]')
-                if cleaned and len(cleaned) > 10 and not cleaned.startswith(('Based on', 'Here are', 'I recommend')):
-                    topics.append({
-                        'topic': cleaned[:200],  # Limit length
-                        'reason': 'This topic was identified based on the template analysis.'
-                    })
-            
-            return {
-                "success": True,
-                "template_id": request.template_id,
-                "topics": topics[:8],
-                "videos_analyzed": len(request.video_ids)
-            }
+            # Last resort fallback - only accept properly formatted lines
+            print("⚠️  All parsing methods failed, returning error")
+            # Don't try to parse broken output - force AI to retry with correct format
+            raise Exception("AI response was not in valid JSON format. Please try again.")
             
         except Exception as e:
-            print(f"⚠️ JSON parsing failed: {e}, falling back to line extraction")
-            # Final fallback
-            lines = [line.strip() for line in response.split('\n') if line.strip()]
-            topics = []
-            for line in lines:
-                cleaned = line.lstrip('0123456789.-•* ').strip('"\'[]')
-                if cleaned and len(cleaned) > 10:
-                    topics.append({'topic': cleaned, 'reason': ''})
-            
-            return {
-                "success": True,
-                "template_id": request.template_id,
-                "topics": topics[:8],
-                "videos_analyzed": len(request.video_ids)
-            }
+            print(f"⚠️ JSON parsing failed: {e}")
+            # Return error instead of broken output
+            raise HTTPException(
+                status_code=500, 
+                detail=f"AI returned invalid format. Please try regenerating. Error: {str(e)}"
+            )
         
     except Exception as e:
         print(f"❌ Template analysis error: {str(e)}")

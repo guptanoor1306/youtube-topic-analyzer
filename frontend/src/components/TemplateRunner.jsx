@@ -234,10 +234,14 @@ Return ONLY a valid JSON array. No markdown, no code blocks, no additional text.
   {
     "topic": "Suggested video title",
     "reason": "🎯 Why it fits: [explanation]\n📊 Topic angle: [specific angle]\n💬 Audience hook: [engagement trigger]"
+  },
+  {
+    "topic": "Another video title",
+    "reason": "🎯 Why it fits: [explanation]\n📊 Topic angle: [specific angle]\n💬 Audience hook: [engagement trigger]"
   }
 ]
 
-Include exactly 10 topic suggestions. Return ONLY the JSON array, nothing else.`
+CRITICAL: Your response must start with [ and end with ]. Nothing before, nothing after. Include exactly 10 topic suggestions.`
   },
   { 
     id: 'custom', 
