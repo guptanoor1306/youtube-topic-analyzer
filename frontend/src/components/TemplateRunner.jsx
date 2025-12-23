@@ -37,7 +37,7 @@ OBJECTIVE: Based STRICTLY on the selected videos provided, identify new related 
 
 CRITICAL: Analyze ONLY the selected videos provided. Do not assume any channel niche or audience. Base your recommendations entirely on patterns in the provided video data.
 
-Return ONLY a JSON array of objects with this format:
+OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
 [{"topic": "Topic title", "reason": "Why it's trending based on the selected video data"}]`
   },
   { 
@@ -72,7 +72,7 @@ CONSTRAINTS:
 - Avoid recycling topics already covered in the selected videos
 - Suggest insightful counter-perspectives, not inflammatory ones
 
-Return ONLY a JSON array of objects with this format:
+OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
 [{"topic": "Topic title", "reason": "Audience contradiction observed and why this deserves a response"}]`
   },
   { 
@@ -107,7 +107,7 @@ CONSTRAINTS:
 - Avoid recycling topics already covered in the selected videos
 - No clickbait or fear-driven framing
 
-Return ONLY a JSON array of objects with this format:
+OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
 [{"topic": "Topic title", "reason": "Specific audience pain point and why this topic addresses it"}]`
   },
   { 
@@ -144,7 +144,7 @@ CONSTRAINTS:
 - Avoid topics already covered in the selected videos
 - Stay relevant to the theme/subject of the selected videos
 
-Return ONLY a JSON array of objects with this format:
+OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
 [{"topic": "Topic title", "reason": "Successful format identified and why this new topic fits"}]`
   },
   { 
@@ -183,7 +183,7 @@ CONSTRAINTS:
 - Avoid sensationalism or misleading angles
 - Focus on topic ideas with genuine value and appeal
 
-Return ONLY a JSON array of objects with this format:
+OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanations. Just the raw JSON:
 [{"topic": "Topic title", "reason": "Viral trigger observed and why this topic has similar potential"}]`
   },
   { 
