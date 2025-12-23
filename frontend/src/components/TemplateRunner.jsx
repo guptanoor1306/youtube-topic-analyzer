@@ -193,55 +193,65 @@ OUTPUT: Return ONLY a valid JSON array. No markdown, no code blocks, no explanat
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
     metadata: { title: 40, thumbnail: 30, views: 30 },
-    description: 'Identify series patterns and suggest new episodes that fit the same theme',
+    description: 'Analyze series naming format and suggest topics in the same pattern',
     prompt: `You are a senior content strategist analyzing YouTube video series patterns.
 
-I will give you a list of videos that all belong to the same content series or thematic pattern. These videos already exist — they've been published by the channel.
+I will give you a list of videos that belong to the same content series. Your PRIMARY focus is to identify the **naming pattern/format** used in the video titles.
 
 INPUT DATA: For each video, you are provided with:
-- Title
+- Title (PRIMARY - analyze title structure carefully)
 - Thumbnail screenshot
 - View count
-- Outlier score (performance relative to channel average)
 
-YOUR JOB:
-1. Analyze the core theme, narrative thread, or emotional truth connecting these videos
-2. Identify the series theme in ONE LINE (the shared tension, question, format, or insight being explored)
-3. Suggest 10 fresh new video topics that would fit perfectly into this same series, using the same lens
+YOUR JOB - STEP BY STEP:
+
+**STEP 1: IDENTIFY THE TITLE FORMAT**
+Analyze the selected video titles and identify the common structural pattern. Examples:
+- "Can you afford X?" format
+- "X vs Y - Which is better?" format  
+- "The truth about X" format
+- "Why X doesn't work" format
+- "How to X without Y" format
+- "[Number] things about X" format
+- "X: What nobody tells you" format
+
+**STEP 2: IDENTIFY THE THEME**
+What is the shared subject matter or audience insight? (e.g., financial decisions, career advice, lifestyle choices, etc.)
+
+**STEP 3: SUGGEST 10 NEW TOPICS**
+Create 10 NEW video topics that:
+✅ Use the EXACT SAME title structure/format identified in Step 1
+✅ Cover the same thematic territory as the selected videos
+✅ Offer fresh, specific angles NOT covered in the selected videos
+✅ Maintain consistency with the series' tone and depth
 
 For each suggestion, explain:
-- 🎯 **Why it fits**: The thematic/emotional/structural reason it aligns with this series
-- 📊 **Topic angle**: The specific insight, comparison, or revelation this topic would explore
-- 💬 **Audience hook**: What kind of engagement, debate, or emotional response it might trigger
+- 🎯 **Why it fits**: How this topic aligns with the series theme and audience
+- 📊 **Format match**: How it uses the same title structure as the series
+- 💬 **Engagement potential**: What debate or emotional response it might trigger
 
 CRITICAL RULES:
-- Analyze ONLY the selected videos provided
-- Do NOT suggest topics that are already covered in the selected videos
-- Base the series theme on actual patterns you observe in the data
-- Suggest topics that maintain the same tone, format, and depth as the selected videos
-- Focus on new angles within the same thematic territory
-
-CONSTRAINTS:
-- Prioritize topics that are non-obvious but clearly related
-- Stay within the same subject area as the selected videos
-- Maintain the same level of depth/complexity as the original series
-- Avoid generic or clickbait suggestions
+- The title format/structure is MORE important than the specific topic
+- ALL 10 suggestions must follow the SAME title pattern as the selected videos
+- Do NOT suggest topics already covered in the selected videos
+- Stay within the same subject area and complexity level
+- If only 1-2 videos are selected, extract the format and extrapolate intelligently
 
 OUTPUT FORMAT:
 Return ONLY a valid JSON array. No markdown, no code blocks, no additional text. Just the raw JSON array:
 
 [
   {
-    "topic": "Suggested video title",
-    "reason": "🎯 Why it fits: [explanation]\n📊 Topic angle: [specific angle]\n💬 Audience hook: [engagement trigger]"
+    "topic": "Can you afford [specific thing]?",
+    "reason": "🎯 Why it fits: [thematic alignment]\n📊 Format match: [how it follows the 'Can you afford X?' structure]\n💬 Engagement potential: [expected reaction]"
   },
   {
-    "topic": "Another video title",
-    "reason": "🎯 Why it fits: [explanation]\n📊 Topic angle: [specific angle]\n💬 Audience hook: [engagement trigger]"
+    "topic": "Can you afford [another specific thing]?",
+    "reason": "🎯 Why it fits: [...]\n📊 Format match: [...]\n💬 Engagement potential: [...]"
   }
 ]
 
-CRITICAL: Your response must start with [ and end with ]. Nothing before, nothing after. Include exactly 10 topic suggestions.`
+CRITICAL: Your response must start with [ and end with ]. Nothing before, nothing after. Include exactly 10 topic suggestions. ALL topics must follow the same title format pattern.`
   },
   { 
     id: 'custom', 
@@ -275,6 +285,10 @@ const TemplateRunner = ({ appState, setAppState }) => {
     transcript: false
   })
   const [customPrompt, setCustomPrompt] = useState('')
+  
+  // Series template state
+  const [showSeriesModal, setShowSeriesModal] = useState(false)
+  const [seriesName, setSeriesName] = useState('')
 
   useEffect(() => {
     // Redirect if no videos selected
@@ -293,6 +307,8 @@ const TemplateRunner = ({ appState, setAppState }) => {
   useEffect(() => {
     if (activeTemplate === 'custom') {
       setShowCustomModal(true)
+    } else if (activeTemplate === 'series_generation') {
+      setShowSeriesModal(true)
     }
   }, [activeTemplate])
 
@@ -314,11 +330,24 @@ const TemplateRunner = ({ appState, setAppState }) => {
         promptToUse = promptOverride
       }
       
+      // For series generation, add series name context if provided
+      if (activeTemplate === 'series_generation' && seriesName) {
+        promptToUse = promptToUse.replace(
+          'YOUR JOB:',
+          `SERIES NAME PROVIDED: "${seriesName}"\n\nYOUR JOB:`
+        )
+        promptToUse = promptToUse.replace(
+          'CRITICAL RULES:',
+          `CRITICAL: The user has specified the series name as "${seriesName}". Use this EXACT naming pattern/format for all suggested topics. If the series name has a specific structure (e.g., "Can you afford X", "The truth about X", "X vs Y"), maintain that exact structure in all suggestions.\n\nCRITICAL RULES:`
+        )
+      }
+      
       console.log('🔍 Starting analysis:', {
         template: activeTemplate,
         videoCount: appState.selectedMyVideos.length,
         videoIds: appState.selectedMyVideos,
-        isRegeneration
+        isRegeneration,
+        seriesName: seriesName || 'auto-detect'
       })
       
       // Fetch transcripts and comments for selected videos
@@ -366,6 +395,14 @@ const TemplateRunner = ({ appState, setAppState }) => {
     setShowCustomModal(false)
     // Pass just the prompt string, not the event
     handleRunAnalysis(customPrompt, false)
+  }
+  
+  const handleSeriesTemplateSubmit = (e) => {
+    if (e) e.preventDefault()
+    
+    // Series name is optional - can auto-detect
+    setShowSeriesModal(false)
+    handleRunAnalysis(null, false)
   }
 
   const handleRegenerate = (e) => {
@@ -771,6 +808,79 @@ Return ONLY a JSON array of objects with this format:
                 <button
                   onClick={() => {
                     setShowCustomModal(false)
+                    if (results.length === 0) {
+                      setActiveTemplate('trending')
+                    }
+                  }}
+                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Series Generation Modal */}
+      {showSeriesModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div className="flex items-center gap-3">
+                <RefreshCw className="w-6 h-6 text-indigo-600" />
+                <h2 className="text-xl font-bold text-gray-900">Series Generation</h2>
+              </div>
+              <button
+                onClick={() => {
+                  setShowSeriesModal(false)
+                  if (results.length === 0) {
+                    setActiveTemplate('trending')
+                  }
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Series Name/Format (Optional)
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  Provide a series name or title format (e.g., "Can you afford X?", "The truth about X"). 
+                  If left empty, the AI will auto-detect the format from selected videos.
+                </p>
+                <input
+                  type="text"
+                  value={seriesName}
+                  onChange={(e) => setSeriesName(e.target.value)}
+                  placeholder="e.g., Can you afford [topic]?"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-indigo-900">
+                  <strong>How it works:</strong> The AI will analyze your selected videos to identify the 
+                  common title format and theme, then suggest 10 new topics following the same pattern.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSeriesTemplateSubmit}
+                  className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                >
+                  Generate Series Topics
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSeriesModal(false)
+                    setSeriesName('')
                     if (results.length === 0) {
                       setActiveTemplate('trending')
                     }
