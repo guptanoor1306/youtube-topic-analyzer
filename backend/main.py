@@ -223,7 +223,15 @@ async def analyze_with_template(request: TemplateAnalysisRequest):
             
             context_parts.append(f"\n--- VIDEO {i+1} ---")
             context_parts.append(f"Title: {video_info.get('title', 'N/A')}")
-            context_parts.append(f"Views: {video_info.get('view_count', 0):,}")
+            
+            # Format view count safely (handle both int and string)
+            view_count = video_info.get('view_count', 0)
+            try:
+                view_count_int = int(view_count) if view_count else 0
+                context_parts.append(f"Views: {view_count_int:,}")
+            except (ValueError, TypeError):
+                context_parts.append(f"Views: {view_count}")
+            
             context_parts.append(f"Thumbnail: {video_info.get('thumbnail', 'N/A')}")
             
             if transcript:
