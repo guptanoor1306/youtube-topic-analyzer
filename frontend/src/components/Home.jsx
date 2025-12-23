@@ -110,11 +110,14 @@ const Home = ({ appState, setAppState }) => {
   return (
     <div className="min-h-[calc(100vh-150px)] flex flex-col items-center py-12 px-4">
       <div className="w-full max-w-2xl mx-auto">
-        {/* YouTube Logo */}
+        {/* Main Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-red-600 rounded-3xl shadow-2xl">
-            <Youtube className="w-14 h-14 text-white" />
-          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            YouTube Topic Analyzer
+          </h1>
+          <p className="text-lg text-gray-600">
+            Discover winning content ideas from your channel's top videos
+          </p>
         </div>
 
         {/* Channel Search Box */}
@@ -213,55 +216,53 @@ const Home = ({ appState, setAppState }) => {
             </div>
           )}
 
-          {/* Cached Channels */}
-          {!loadingCached && cachedChannels.length > 0 && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-sm font-medium text-gray-700 mb-4">Recently analyzed channels:</p>
-              <div className="flex items-center gap-4 flex-wrap">
-                {cachedChannels.map((channel) => (
-                  <button
-                    key={channel.channel_id}
-                    onClick={() => selectChannel({
-                      channel_id: channel.channel_id,
-                      title: channel.channel_title,
-                      thumbnail: `https://yt3.ggpht.com/ytc/default_${channel.channel_id}`
-                    })}
-                    disabled={settingUpChannel}
-                    className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 border border-gray-200 hover:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
-                    title={channel.channel_title}
-                  >
-                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-200 group-hover:border-blue-500 transition-colors shadow-md">
-                      <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
-                        <Youtube className="w-7 h-7 text-white" />
-                      </div>
-                    </div>
-                    <span className="text-xs font-medium text-gray-700 max-w-[90px] truncate text-center">
-                      {channel.channel_title}
-                    </span>
-                    {channel.video_count > 0 && (
-                      <span className="text-xs text-gray-500">
-                        {channel.video_count} videos
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Debug: Show if loading or no cached channels */}
-          {loadingCached && (
-            <div className="mt-6 text-center text-sm text-gray-400">
-              <Loader2 className="w-4 h-4 animate-spin inline-block mr-2" />
-              Loading cached channels...
-            </div>
-          )}
-          {!loadingCached && cachedChannels.length === 0 && (
-            <div className="mt-6 text-center text-sm text-gray-400">
-              No cached channels yet. Search for a channel to get started!
-            </div>
-          )}
         </div>
+
+        {/* Popular Channels (Cached) */}
+        {!loadingCached && cachedChannels.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Popular Channels</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {cachedChannels.map((channel) => (
+                <button
+                  key={channel.channel_id}
+                  onClick={() => selectChannel({
+                    channel_id: channel.channel_id,
+                    title: channel.channel_title,
+                    thumbnail: `https://yt3.ggpht.com/ytc/default_${channel.channel_id}`
+                  })}
+                  disabled={settingUpChannel}
+                  className="group flex flex-col items-center gap-3 p-4 bg-white rounded-xl hover:shadow-lg border border-gray-200 hover:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={channel.channel_title}
+                >
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 group-hover:border-blue-500 transition-colors shadow-md">
+                    <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                      <Youtube className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-gray-900 truncate max-w-full">
+                      {channel.channel_title}
+                    </p>
+                    {channel.video_count > 0 && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {channel.video_count} videos
+                      </p>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loadingCached && (
+          <div className="mt-8 text-center text-sm text-gray-400">
+            <Loader2 className="w-5 h-5 animate-spin inline-block mr-2" />
+            Loading popular channels...
+          </div>
+        )}
       </div>
     </div>
   )
