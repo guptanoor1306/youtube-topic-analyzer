@@ -228,7 +228,8 @@ CONSTRAINTS:
 - Avoid generic or clickbait suggestions
 
 OUTPUT FORMAT:
-Return ONLY a JSON array of objects with this format:
+Return ONLY a valid JSON array. No markdown, no code blocks, no additional text. Just the raw JSON array:
+
 [
   {
     "topic": "Suggested video title",
@@ -236,7 +237,7 @@ Return ONLY a JSON array of objects with this format:
   }
 ]
 
-Include exactly 10 topic suggestions.`
+Include exactly 10 topic suggestions. Return ONLY the JSON array, nothing else.`
   },
   { 
     id: 'custom', 
