@@ -143,6 +143,7 @@ class DatabaseService:
         self,
         channel_id: str,
         channel_title: str,
+        thumbnail_url: str,
         subscriber_count: int,
         video_count: int,
         videos: List[Dict]
@@ -153,6 +154,7 @@ class DatabaseService:
         if channel:
             # Update existing
             channel.channel_title = channel_title
+            channel.thumbnail_url = thumbnail_url
             channel.subscriber_count = subscriber_count
             channel.video_count = video_count
             channel.videos = videos
@@ -162,6 +164,7 @@ class DatabaseService:
             channel = ChannelCache(
                 channel_id=channel_id,
                 channel_title=channel_title,
+                thumbnail_url=thumbnail_url,
                 subscriber_count=subscriber_count,
                 video_count=video_count,
                 videos=videos

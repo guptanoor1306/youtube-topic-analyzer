@@ -259,16 +259,24 @@ const Home = ({ appState, setAppState }) => {
                   onClick={() => selectChannel({
                     channel_id: channel.channel_id,
                     title: channel.channel_title,
-                    thumbnail: `https://yt3.ggpht.com/ytc/default_${channel.channel_id}`
+                    thumbnail: channel.thumbnail_url
                   })}
                   disabled={settingUpChannel}
                   className="group flex flex-col items-center gap-3 p-5 bg-gray-50 rounded-xl hover:shadow-lg hover:bg-white border-2 border-transparent hover:border-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   title={channel.channel_title}
                 >
                   <div className="w-20 h-20 rounded-full overflow-hidden border-3 border-gray-200 group-hover:border-red-500 group-hover:scale-110 transition-all shadow-lg">
-                    <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
-                      <Youtube className="w-10 h-10 text-white" />
-                    </div>
+                    {channel.thumbnail_url ? (
+                      <img 
+                        src={channel.thumbnail_url} 
+                        alt={channel.channel_title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                        <Youtube className="w-10 h-10 text-white" />
+                      </div>
+                    )}
                   </div>
                   <div className="text-center w-full">
                     <p className="text-sm font-semibold text-gray-900 truncate">

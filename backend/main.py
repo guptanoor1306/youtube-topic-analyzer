@@ -213,6 +213,7 @@ async def setup_channel(request: ChannelSetupRequest, db: Session = Depends(get_
         db_service.save_channel_cache(
             channel_id=request.channel_id,
             channel_title=channel_info.get('title', ''),
+            thumbnail_url=channel_info.get('thumbnail', ''),
             subscriber_count=int(channel_info.get('subscriber_count', 0)),
             video_count=int(channel_info.get('video_count', 0)),
             videos=recent_videos
@@ -287,6 +288,7 @@ async def get_cached_channels(db: Session = Depends(get_db)):
             "channels": [{
                 "channel_id": ch.channel_id,
                 "channel_title": ch.channel_title,
+                "thumbnail_url": ch.thumbnail_url,
                 "subscriber_count": ch.subscriber_count,
                 "video_count": len(ch.videos) if ch.videos else 0,
                 "cached_at": ch.updated_at.isoformat() if ch.updated_at else None

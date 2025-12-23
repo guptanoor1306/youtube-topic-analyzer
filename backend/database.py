@@ -71,6 +71,7 @@ class ChannelCache(Base):
     
     channel_id = Column(String(50), primary_key=True, index=True)
     channel_title = Column(String(200))
+    thumbnail_url = Column(String(500), nullable=True)
     subscriber_count = Column(Integer)
     video_count = Column(Integer)
     
@@ -86,6 +87,7 @@ class ChannelCache(Base):
         return {
             'channel_id': self.channel_id,
             'channel_title': self.channel_title,
+            'thumbnail_url': self.thumbnail_url,
             'subscriber_count': self.subscriber_count,
             'video_count': self.video_count,
             'videos': self.videos,
