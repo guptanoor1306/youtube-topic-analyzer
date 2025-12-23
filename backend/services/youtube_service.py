@@ -203,13 +203,12 @@ class YouTubeService:
             return cached
         
         try:
-            # Create API instance and fetch transcript
-            api = YouTubeTranscriptApi()
-            transcript_snippets = api.fetch(video_id)
+            # Fetch transcript using static method
+            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
             
-            if transcript_snippets:
-                # Extract text from each snippet object
-                transcript_text = " ".join([snippet.text for snippet in transcript_snippets])
+            if transcript_list:
+                # Extract text from each transcript entry
+                transcript_text = " ".join([entry['text'] for entry in transcript_list])
                 # Cache the result
                 self.transcript_cache.set(cache_key, transcript_text)
                 return transcript_text

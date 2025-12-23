@@ -37,8 +37,16 @@ OBJECTIVE: Based STRICTLY on the selected videos provided, identify new related 
 
 CRITICAL: Analyze ONLY the selected videos provided. Do not assume any channel niche or audience. Base your recommendations entirely on patterns in the provided video data.
 
-OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Why it's trending based on the selected video data"}]
+OUTPUT FORMAT - CRITICAL:
+Return ONLY a valid JSON array with EXACTLY 15 topics. 
+Format: [{"topic": "string", "reason": "string"}]
+
+CRITICAL: 
+- Return ONLY the JSON array
+- NO markdown code blocks (no \`\`\`)
+- NO explanations before or after
+- EXACTLY 15 topic objects
+- Each reason should be ONE clear sentence explaining why it's trending
 
 Include exactly 15 topic suggestions.`
   },
@@ -74,8 +82,16 @@ CONSTRAINTS:
 - Avoid recycling topics already covered in the selected videos
 - Suggest insightful counter-perspectives, not inflammatory ones
 
-OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Audience contradiction observed and why this deserves a response"}]
+OUTPUT FORMAT - CRITICAL:
+Return ONLY a valid JSON array with EXACTLY 15 topics. 
+Format: [{"topic": "string", "reason": "string"}]
+
+CRITICAL: 
+- Return ONLY the JSON array
+- NO markdown code blocks (no \`\`\`)
+- NO explanations before or after
+- EXACTLY 15 topic objects
+- Each reason should be ONE clear sentence explaining the audience contradiction
 
 Include exactly 15 topic suggestions.`
   },
@@ -111,8 +127,16 @@ CONSTRAINTS:
 - Avoid recycling topics already covered in the selected videos
 - No clickbait or fear-driven framing
 
-OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Specific audience pain point and why this topic addresses it"}]
+OUTPUT FORMAT - CRITICAL:
+Return ONLY a valid JSON array with EXACTLY 15 topics. 
+Format: [{"topic": "string", "reason": "string"}]
+
+CRITICAL: 
+- Return ONLY the JSON array
+- NO markdown code blocks (no \`\`\`)
+- NO explanations before or after
+- EXACTLY 15 topic objects
+- Each reason should be ONE clear sentence explaining the pain point
 
 Include exactly 15 topic suggestions.`
   },
@@ -150,8 +174,16 @@ CONSTRAINTS:
 - Avoid topics already covered in the selected videos
 - Stay relevant to the theme/subject of the selected videos
 
-OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Successful format identified and why this new topic fits"}]
+OUTPUT FORMAT - CRITICAL:
+Return ONLY a valid JSON array with EXACTLY 15 topics. 
+Format: [{"topic": "string", "reason": "string"}]
+
+CRITICAL: 
+- Return ONLY the JSON array
+- NO markdown code blocks (no \`\`\`)
+- NO explanations before or after
+- EXACTLY 15 topic objects
+- Each reason should be ONE clear sentence explaining the format match
 
 Include exactly 15 topic suggestions.`
   },
@@ -191,8 +223,22 @@ CONSTRAINTS:
 - Avoid sensationalism or misleading angles
 - Focus on topic ideas with genuine value and appeal
 
-OUTPUT: Return ONLY a valid JSON array with EXACTLY 15 topics. No markdown, no code blocks, no explanations. Just the raw JSON:
-[{"topic": "Topic title", "reason": "Viral trigger observed and why this topic has similar potential"}]
+OUTPUT FORMAT - CRITICAL:
+Return ONLY a valid JSON array with EXACTLY 15 topics. 
+Format: [{"topic": "string", "reason": "string"}]
+
+Example:
+[
+  {"topic": "How to save on groceries without meal prep", "reason": "High view count (500K) and comment engagement suggests strong audience interest in practical money-saving tips."},
+  {"topic": "Best credit cards for beginners", "reason": "Comments show many viewers asking about credit card recommendations, indicating unmet audience need."}
+]
+
+CRITICAL: 
+- Return ONLY the JSON array
+- NO markdown code blocks (no \`\`\`)
+- NO explanations before or after
+- EXACTLY 15 topic objects
+- Each reason should be ONE clear sentence
 
 Include exactly 15 topic suggestions.`
   },

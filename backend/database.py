@@ -63,6 +63,37 @@ class VideoMetadata(Base):
         }
 
 
+class ChannelCache(Base):
+    """
+    Stores cached channel data and video lists to avoid repeated YouTube API calls
+    """
+    __tablename__ = "channel_cache"
+    
+    channel_id = Column(String(50), primary_key=True, index=True)
+    channel_title = Column(String(200))
+    subscriber_count = Column(Integer)
+    video_count = Column(Integer)
+    
+    # Cached video list (top 100)
+    videos = Column(JSON, nullable=True)  # List of video objects
+    
+    # Metadata
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        """Convert to dictionary for easy serialization"""
+        return {
+            'channel_id': self.channel_id,
+            'channel_title': self.channel_title,
+            'subscriber_count': self.subscriber_count,
+            'video_count': self.video_count,
+            'videos': self.videos,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
 def init_db():
     """Initialize database tables"""
     Base.metadata.create_all(bind=engine)

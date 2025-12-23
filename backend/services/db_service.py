@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Optional, List, Dict
 import json
 
-from database import VideoMetadata
+from database import VideoMetadata, ChannelCache
 
 
 class DatabaseService:
@@ -131,4 +131,62 @@ class DatabaseService:
             'videos_with_transcript': videos_with_transcript,
             'videos_with_comments': videos_with_comments
         }
+    
+    # Channel caching methods
+    def get_channel_cache(self, channel_id: str) -> Optional[ChannelCache]:
+        """Get cached channel data"""
+        return self.db.query(ChannelCache).filter(
+            ChannelCache.channel_id == channel_id
+        ).first()
+    
+    def save_channel_cache(
+        self,
+        channel_id: str,
+        channel_title: str,
+        subscriber_count: int,
+        video_count: int,
+        videos: List[Dict]
+    ) -> ChannelCache:
+        """Save or update channel cache"""
+        channel = self.get_channel_cache(channel_id)
+        
+        if channel:
+            # Update existing
+            channel.channel_title = channel_title
+            channel.subscriber_count = subscriber_count
+            channel.video_count = video_count
+            channel.videos = videos
+            channel.updated_at = datetime.utcnow()
+        else:
+            # Create new
+            channel = ChannelCache(
+                channel_id=channel_id,
+                channel_title=channel_title,
+                subscriber_count=subscriber_count,
+                video_count=video_count,
+                videos=videos
+            )
+            self.db.add(channel)
+        
+        self.db.commit()
+        self.db.refresh(channel)
+        return channel
+    
+    def clear_channel_cache(self, channel_id: str) -> bool:
+        """Clear cache for a specific channel"""
+        channel = self.get_channel_cache(channel_id)
+        if channel:
+            self.db.delete(channel)
+            self.db.commit()
+            return True
+        return False
+    
+    def is_channel_cache_fresh(self, channel_id: str, max_age_hours: int = 24) -> bool:
+        """Check if channel cache is still fresh (default: 24 hours)"""
+        channel = self.get_channel_cache(channel_id)
+        if not channel or not channel.updated_at:
+            return False
+        
+        age = datetime.utcnow() - channel.updated_at
+        return age < timedelta(hours=max_age_hours)
 
