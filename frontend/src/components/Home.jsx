@@ -21,10 +21,14 @@ const Home = ({ appState, setAppState }) => {
 
   const fetchCachedChannels = async () => {
     try {
+      console.log('🔍 Fetching cached channels from:', `${API_BASE_URL}/api/cache/channels`)
       const response = await axios.get(`${API_BASE_URL}/api/cache/channels`)
+      console.log('📊 Cached channels response:', response.data)
       setCachedChannels(response.data.channels || [])
+      console.log(`✅ Found ${response.data.channels?.length || 0} cached channels`)
     } catch (error) {
-      console.error('Error fetching cached channels:', error)
+      console.error('❌ Error fetching cached channels:', error)
+      console.error('Error details:', error.response?.data || error.message)
     } finally {
       setLoadingCached(false)
     }
@@ -104,16 +108,16 @@ const Home = ({ appState, setAppState }) => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-150px)] flex flex-col items-center justify-center py-12 px-4">
-      {/* YouTube Logo Only */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-24 h-24 bg-red-600 rounded-3xl shadow-2xl">
-          <Youtube className="w-14 h-14 text-white" />
+    <div className="min-h-[calc(100vh-150px)] flex flex-col items-center py-12 px-4">
+      <div className="w-full max-w-2xl mx-auto">
+        {/* YouTube Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-red-600 rounded-3xl shadow-2xl">
+            <Youtube className="w-14 h-14 text-white" />
+          </div>
         </div>
-      </div>
 
-      {/* Channel Search Box */}
-      <div className="w-full max-w-2xl">
+        {/* Channel Search Box */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
           <div className="flex items-center gap-3 mb-4">
             <Search className="w-6 h-6 text-gray-400" />
@@ -208,43 +212,56 @@ const Home = ({ appState, setAppState }) => {
               </div>
             </div>
           )}
-        </div>
 
-        {/* Cached Channels */}
-        {cachedChannels.length > 0 && (
-          <div className="mt-6">
-            <p className="text-sm text-gray-500 mb-3 text-center">Recently analyzed channels:</p>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              {cachedChannels.map((channel) => (
-                <button
-                  key={channel.channel_id}
-                  onClick={() => selectChannel({
-                    channel_id: channel.channel_id,
-                    title: channel.channel_title,
-                    thumbnail: `https://yt3.ggpht.com/ytc/default_${channel.channel_id}`
-                  })}
-                  disabled={settingUpChannel}
-                  className="group relative flex flex-col items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={channel.channel_title}
-                >
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 group-hover:border-blue-500 transition-colors shadow-sm">
-                    <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
-                      <Youtube className="w-8 h-8 text-white" />
+          {/* Cached Channels */}
+          {!loadingCached && cachedChannels.length > 0 && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-sm font-medium text-gray-700 mb-4">Recently analyzed channels:</p>
+              <div className="flex items-center gap-4 flex-wrap">
+                {cachedChannels.map((channel) => (
+                  <button
+                    key={channel.channel_id}
+                    onClick={() => selectChannel({
+                      channel_id: channel.channel_id,
+                      title: channel.channel_title,
+                      thumbnail: `https://yt3.ggpht.com/ytc/default_${channel.channel_id}`
+                    })}
+                    disabled={settingUpChannel}
+                    className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 border border-gray-200 hover:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
+                    title={channel.channel_title}
+                  >
+                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-200 group-hover:border-blue-500 transition-colors shadow-md">
+                      <div className="w-full h-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                        <Youtube className="w-7 h-7 text-white" />
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-xs text-gray-600 max-w-[80px] truncate">
-                    {channel.channel_title}
-                  </span>
-                  {channel.video_count && (
-                    <span className="text-xs text-gray-400">
-                      {channel.video_count} videos
+                    <span className="text-xs font-medium text-gray-700 max-w-[90px] truncate text-center">
+                      {channel.channel_title}
                     </span>
-                  )}
-                </button>
-              ))}
+                    {channel.video_count > 0 && (
+                      <span className="text-xs text-gray-500">
+                        {channel.video_count} videos
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Debug: Show if loading or no cached channels */}
+          {loadingCached && (
+            <div className="mt-6 text-center text-sm text-gray-400">
+              <Loader2 className="w-4 h-4 animate-spin inline-block mr-2" />
+              Loading cached channels...
+            </div>
+          )}
+          {!loadingCached && cachedChannels.length === 0 && (
+            <div className="mt-6 text-center text-sm text-gray-400">
+              No cached channels yet. Search for a channel to get started!
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
