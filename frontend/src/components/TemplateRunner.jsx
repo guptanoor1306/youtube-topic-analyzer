@@ -187,6 +187,58 @@ Return ONLY a JSON array of objects with this format:
 [{"topic": "Topic title", "reason": "Viral trigger observed and why this topic has similar potential"}]`
   },
   { 
+    id: 'series_generation', 
+    name: 'Series Generation', 
+    icon: RefreshCw,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-50',
+    metadata: { title: 30, thumbnail: 20, views: 30, outlier_score: 20 },
+    description: 'Identify series patterns and suggest new episodes that fit the same theme',
+    prompt: `You are a senior content strategist analyzing YouTube video series patterns.
+
+I will give you a list of videos that all belong to the same content series or thematic pattern. These videos already exist — they've been published by the channel.
+
+INPUT DATA: For each video, you are provided with:
+- Title
+- Thumbnail screenshot
+- View count
+- Outlier score (performance relative to channel average)
+
+YOUR JOB:
+1. Analyze the core theme, narrative thread, or emotional truth connecting these videos
+2. Identify the series theme in ONE LINE (the shared tension, question, format, or insight being explored)
+3. Suggest 10 fresh new video topics that would fit perfectly into this same series, using the same lens
+
+For each suggestion, explain:
+- 🎯 **Why it fits**: The thematic/emotional/structural reason it aligns with this series
+- 📊 **Topic angle**: The specific insight, comparison, or revelation this topic would explore
+- 💬 **Audience hook**: What kind of engagement, debate, or emotional response it might trigger
+
+CRITICAL RULES:
+- Analyze ONLY the selected videos provided
+- Do NOT suggest topics that are already covered in the selected videos
+- Base the series theme on actual patterns you observe in the data
+- Suggest topics that maintain the same tone, format, and depth as the selected videos
+- Focus on new angles within the same thematic territory
+
+CONSTRAINTS:
+- Prioritize topics that are non-obvious but clearly related
+- Stay within the same subject area as the selected videos
+- Maintain the same level of depth/complexity as the original series
+- Avoid generic or clickbait suggestions
+
+OUTPUT FORMAT:
+Return ONLY a JSON array of objects with this format:
+[
+  {
+    "topic": "Suggested video title",
+    "reason": "🎯 Why it fits: [explanation]\n📊 Topic angle: [specific angle]\n💬 Audience hook: [engagement trigger]"
+  }
+]
+
+Include exactly 10 topic suggestions.`
+  },
+  { 
     id: 'custom', 
     name: 'Custom Template', 
     icon: Sparkles,
