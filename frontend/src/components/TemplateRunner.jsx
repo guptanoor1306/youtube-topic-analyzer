@@ -602,10 +602,10 @@ const TemplateRunner = ({ appState, setAppState }) => {
                       ))}
                     </div>
                   )}
-                </div>
-                {/* Prompt Editor - Inline */}
-                {currentTemplate && !currentTemplate.isCustom && editablePrompt && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
+                  
+                  {/* Prompt Editor - Inline */}
+                  {editablePrompt && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
                     <button
                       onClick={() => setShowPromptEditor(!showPromptEditor)}
                       className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors"
@@ -644,8 +644,9 @@ const TemplateRunner = ({ appState, setAppState }) => {
                       </div>
                     )}
                   </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Results Container */}
