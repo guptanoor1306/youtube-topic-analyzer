@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
+from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict
@@ -12,9 +13,16 @@ from services.ai_service import AIService
 from services.pdf_service import PDFService
 from services.niche_service import NicheService
 from services.static_data_service import StaticDataService
+from services.db_service import DatabaseService
+
+# Database imports
+from database import init_db, get_db
 
 # Force load .env file and override any existing environment variables
 load_dotenv(override=True)
+
+# Initialize database
+init_db()
 
 # Print Railway environment info for debugging
 import sys
@@ -192,47 +200,108 @@ class TemplateAnalysisRequest(BaseModel):
 
 
 @app.post("/api/analyze/template")
-async def analyze_with_template(request: TemplateAnalysisRequest):
-    """Analyze videos with a specific template"""
+async def analyze_with_template(request: TemplateAnalysisRequest, db: Session = Depends(get_db)):
+    """Analyze videos with a specific template (with database caching)"""
     try:
         print(f"🔍 Fetching data for {len(request.video_ids)} videos...")
         
-        # Fetch video info AND transcripts/comments in parallel
+        # Initialize database service
+        db_service = DatabaseService(db)
+        
+        # Check cache first
+        cached_videos = db_service.get_multiple_videos(request.video_ids)
+        print(f"💾 Found {len(cached_videos)}/{len(request.video_ids)} videos in cache")
+        
+        # Separate cached and uncached videos
+        uncached_video_ids = [vid for vid in request.video_ids if vid not in cached_videos]
+        
+        # Fetch uncached videos from YouTube API
         import asyncio
-        video_info_tasks = [youtube_service.get_video_info(vid) for vid in request.video_ids]
-        video_data_task = youtube_service.get_video_data_parallel(request.video_ids, max_comments=50)
+        video_infos = []
+        video_data_map = {}
         
-        video_infos, video_data_map = await asyncio.gather(
-            asyncio.gather(*video_info_tasks, return_exceptions=True),
-            video_data_task
-        )
+        if uncached_video_ids:
+            print(f"📥 Fetching {len(uncached_video_ids)} videos from YouTube API...")
+            video_info_tasks = [youtube_service.get_video_info(vid) for vid in uncached_video_ids]
+            video_data_task = youtube_service.get_video_data_parallel(uncached_video_ids, max_comments=50)
+            
+            uncached_infos, uncached_data = await asyncio.gather(
+                asyncio.gather(*video_info_tasks, return_exceptions=True),
+                video_data_task
+            )
+            
+            # Save to database
+            for i, video_id in enumerate(uncached_video_ids):
+                video_info = uncached_infos[i]
+                if isinstance(video_info, Exception):
+                    print(f"⚠️ Error fetching video {video_id}: {video_info}")
+                    continue
+                
+                data = uncached_data.get(video_id, {})
+                
+                # Save to database
+                try:
+                    db_service.save_video_metadata(
+                        video_id=video_id,
+                        title=video_info.get('title', ''),
+                        thumbnail_url=video_info.get('thumbnail', ''),
+                        view_count=int(video_info.get('view_count', 0)) if video_info.get('view_count') else 0,
+                        channel_id=video_info.get('channel_id', ''),
+                        channel_title=video_info.get('channel_title', ''),
+                        transcript=data.get('transcript'),
+                        comments=data.get('comments')
+                    )
+                    print(f"✅ Saved video {video_id} to database")
+                except Exception as e:
+                    print(f"⚠️ Error saving video {video_id} to database: {e}")
+            
+            video_infos = uncached_infos
+            video_data_map = uncached_data
         
-        # Build comprehensive context with ALL metadata
+        # Build comprehensive context from cache + fresh data
         context_parts = []
         context_parts.append("=== VIDEO DATA ===\n")
         
         for i, video_id in enumerate(request.video_ids):
-            video_info = video_infos[i]
-            if isinstance(video_info, Exception):
-                print(f"⚠️ Skipping video {video_id} due to error: {video_info}")
-                continue
+            # Get data from cache or fresh fetch
+            if video_id in cached_videos:
+                cached_video = cached_videos[video_id]
+                title = cached_video.title
+                view_count = cached_video.view_count
+                thumbnail = cached_video.thumbnail_url
+                transcript = cached_video.transcript or ''
+                comments = cached_video.comments or []
+                print(f"💾 Using cached data for video {video_id}")
+            else:
+                # Find in freshly fetched data
+                video_idx = uncached_video_ids.index(video_id) if video_id in uncached_video_ids else -1
+                if video_idx == -1 or video_idx >= len(video_infos):
+                    print(f"⚠️ Skipping video {video_id} - not found")
+                    continue
                 
-            data = video_data_map.get(video_id, {})
-            transcript = data.get('transcript', '')
-            comments = data.get('comments', [])
+                video_info = video_infos[video_idx]
+                if isinstance(video_info, Exception):
+                    print(f"⚠️ Skipping video {video_id} due to error: {video_info}")
+                    continue
+                
+                data = video_data_map.get(video_id, {})
+                title = video_info.get('title', 'N/A')
+                view_count = video_info.get('view_count', 0)
+                thumbnail = video_info.get('thumbnail', 'N/A')
+                transcript = data.get('transcript', '')
+                comments = data.get('comments', [])
             
             context_parts.append(f"\n--- VIDEO {i+1} ---")
-            context_parts.append(f"Title: {video_info.get('title', 'N/A')}")
+            context_parts.append(f"Title: {title}")
             
             # Format view count safely (handle both int and string)
-            view_count = video_info.get('view_count', 0)
             try:
                 view_count_int = int(view_count) if view_count else 0
                 context_parts.append(f"Views: {view_count_int:,}")
             except (ValueError, TypeError):
                 context_parts.append(f"Views: {view_count}")
             
-            context_parts.append(f"Thumbnail: {video_info.get('thumbnail', 'N/A')}")
+            context_parts.append(f"Thumbnail: {thumbnail}")
             
             if transcript:
                 # Include more transcript for better analysis
@@ -305,7 +374,7 @@ async def analyze_with_template(request: TemplateAnalysisRequest):
                         return {
                             "success": True,
                             "template_id": request.template_id,
-                            "topics": parsed_topics[:8],  # Return max 8 topics
+                            "topics": parsed_topics[:15],  # Return max 15 topics
                             "videos_analyzed": len(request.video_ids)
                         }
             

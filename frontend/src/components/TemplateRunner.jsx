@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Flame, Zap, RefreshCw, Target, TrendingUp, Sparkles, Loader2, Home, Info, X } from 'lucide-react'
+import { ChevronLeft, Flame, Zap, RefreshCw, Target, TrendingUp, Sparkles, Loader2, Home, Info, X, FileText, ChevronUp, ChevronDown, AlertTriangle, Heart } from 'lucide-react'
 import axios from 'axios'
 import { API_BASE_URL } from '../config'
 
@@ -218,8 +218,8 @@ Analyze the selected video titles and identify the common structural pattern. Ex
 **STEP 2: IDENTIFY THE THEME**
 What is the shared subject matter or audience insight? (e.g., financial decisions, career advice, lifestyle choices, etc.)
 
-**STEP 3: SUGGEST 10 NEW TOPICS**
-Create 10 NEW video topics that:
+**STEP 3: SUGGEST 15 NEW TOPICS**
+Create 15 NEW video topics that:
 ✅ Use the EXACT SAME title structure/format identified in Step 1
 ✅ Cover the same thematic territory as the selected videos
 ✅ Offer fresh, specific angles NOT covered in the selected videos
@@ -251,7 +251,7 @@ Return ONLY a valid JSON array. No markdown, no code blocks, no additional text.
   }
 ]
 
-CRITICAL: Your response must start with [ and end with ]. Nothing before, nothing after. Include exactly 10 topic suggestions. ALL topics must follow the same title format pattern.`
+CRITICAL: Your response must start with [ and end with ]. Nothing before, nothing after. Include exactly 15 topic suggestions. ALL topics must follow the same title format pattern.`
   },
   { 
     id: 'custom', 
@@ -289,6 +289,10 @@ const TemplateRunner = ({ appState, setAppState }) => {
   // Series template state
   const [showSeriesModal, setShowSeriesModal] = useState(false)
   const [seriesName, setSeriesName] = useState('')
+  
+  // Editable prompt state
+  const [editablePrompt, setEditablePrompt] = useState('')
+  const [showPromptEditor, setShowPromptEditor] = useState(true)
 
   useEffect(() => {
     // Redirect if no videos selected
@@ -302,6 +306,25 @@ const TemplateRunner = ({ appState, setAppState }) => {
   ) || []
 
   const currentTemplate = TEMPLATES.find(t => t.id === activeTemplate)
+  
+  // Update editable prompt when template changes
+  useEffect(() => {
+    if (currentTemplate && !currentTemplate.isCustom) {
+      let prompt = currentTemplate.prompt
+      // Apply series name if applicable
+      if (activeTemplate === 'series_generation' && seriesName) {
+        prompt = prompt.replace(
+          'YOUR JOB:',
+          `SERIES NAME PROVIDED: "${seriesName}"\n\nYOUR JOB:`
+        )
+        prompt = prompt.replace(
+          'CRITICAL RULES:',
+          `CRITICAL: The user has specified the series name as "${seriesName}". Use this EXACT naming pattern/format for all suggested topics. If the series name has a specific structure (e.g., "Can you afford X", "The truth about X", "X vs Y"), maintain that exact structure in all suggestions.\n\nCRITICAL RULES:`
+        )
+      }
+      setEditablePrompt(prompt)
+    }
+  }, [activeTemplate, currentTemplate, seriesName])
   
   // Handle custom template click
   useEffect(() => {
@@ -324,22 +347,10 @@ const TemplateRunner = ({ appState, setAppState }) => {
     setLoading(true)
     
     try {
-      // Make sure promptOverride is a string, not an event object
-      let promptToUse = currentTemplate.prompt
+      // Use editable prompt if no override provided
+      let promptToUse = editablePrompt
       if (promptOverride && typeof promptOverride === 'string') {
         promptToUse = promptOverride
-      }
-      
-      // For series generation, add series name context if provided
-      if (activeTemplate === 'series_generation' && seriesName) {
-        promptToUse = promptToUse.replace(
-          'YOUR JOB:',
-          `SERIES NAME PROVIDED: "${seriesName}"\n\nYOUR JOB:`
-        )
-        promptToUse = promptToUse.replace(
-          'CRITICAL RULES:',
-          `CRITICAL: The user has specified the series name as "${seriesName}". Use this EXACT naming pattern/format for all suggested topics. If the series name has a specific structure (e.g., "Can you afford X", "The truth about X", "X vs Y"), maintain that exact structure in all suggestions.\n\nCRITICAL RULES:`
-        )
       }
       
       console.log('🔍 Starting analysis:', {
@@ -581,6 +592,49 @@ const TemplateRunner = ({ appState, setAppState }) => {
                 </div>
               )}
             </div>
+
+            {/* Prompt Editor */}
+            {currentTemplate && !currentTemplate.isCustom && editablePrompt && (
+              <div className="bg-white rounded-xl border border-gray-200 mb-4">
+                <button
+                  onClick={() => setShowPromptEditor(!showPromptEditor)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-gray-600" />
+                    <span className="font-semibold text-gray-900">Template Prompt</span>
+                    <span className="text-xs text-gray-500">(Click to {showPromptEditor ? 'hide' : 'show'} & edit)</span>
+                  </div>
+                  {showPromptEditor ? (
+                    <ChevronUp className="w-5 h-5 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-500" />
+                  )}
+                </button>
+                
+                {showPromptEditor && (
+                  <div className="p-4 pt-0 border-t border-gray-200">
+                    <textarea
+                      value={editablePrompt}
+                      onChange={(e) => setEditablePrompt(e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors font-mono text-sm resize-y"
+                      rows={12}
+                      placeholder="Enter your prompt here..."
+                    />
+                    <div className="flex items-center gap-2 mt-3">
+                      <button
+                        onClick={() => setEditablePrompt(currentTemplate.prompt)}
+                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        Reset to Default
+                      </button>
+                      <div className="flex-1"></div>
+                      <span className="text-xs text-gray-500">{editablePrompt.length} characters</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Results Container */}
             <div className="bg-white rounded-xl border border-gray-200">
@@ -865,7 +919,7 @@ Return ONLY a JSON array of objects with this format:
               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
                 <p className="text-sm text-indigo-900">
                   <strong>How it works:</strong> The AI will analyze your selected videos to identify the 
-                  common title format and theme, then suggest 10 new topics following the same pattern.
+                  common title format and theme, then suggest 15 new topics following the same pattern.
                 </p>
               </div>
 
