@@ -182,17 +182,94 @@ class SearchNicheTitlesRequest(BaseModel):
 
 
 @app.post("/api/channel/setup")
-async def setup_channel(request: ChannelSetupRequest):
-    """Setup primary channel and fetch basic info"""
+async def setup_channel(request: ChannelSetupRequest, db: Session = Depends(get_db)):
+    """Setup primary channel and fetch basic info (with database caching)"""
     try:
+        db_service = DatabaseService(db)
+        
+        # Check if channel is cached and fresh (< 24 hours old)
+        cached_channel = db_service.get_channel_cache(request.channel_id)
+        if cached_channel and db_service.is_channel_cache_fresh(request.channel_id, max_age_hours=24):
+            print(f"💾 Using cached channel data for {request.channel_id}")
+            return {
+                "success": True,
+                "channel": {
+                    "id": cached_channel.channel_id,
+                    "title": cached_channel.channel_title,
+                    "subscriber_count": cached_channel.subscriber_count,
+                    "video_count": cached_channel.video_count
+                },
+                "recent_videos": cached_channel.videos,
+                "from_cache": True
+            }
+        
+        # Cache miss or stale - fetch from YouTube API
+        print(f"📥 Fetching fresh channel data for {request.channel_id}")
         channel_info = await youtube_service.get_channel_info(request.channel_id)
         max_vids = request.max_videos if request.max_videos else 100
         recent_videos = await youtube_service.get_channel_videos(request.channel_id, max_results=max_vids)
         
+        # Save to database cache
+        db_service.save_channel_cache(
+            channel_id=request.channel_id,
+            channel_title=channel_info.get('title', ''),
+            subscriber_count=int(channel_info.get('subscriber_count', 0)),
+            video_count=int(channel_info.get('video_count', 0)),
+            videos=recent_videos
+        )
+        print(f"✅ Saved channel {request.channel_id} to database cache")
+        
         return {
             "success": True,
             "channel": channel_info,
-            "recent_videos": recent_videos
+            "recent_videos": recent_videos,
+            "from_cache": False
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/cache/clear")
+async def clear_channel_cache(channel_id: str, db: Session = Depends(get_db)):
+    """Clear cache for a specific channel to force refresh"""
+    try:
+        db_service = DatabaseService(db)
+        success = db_service.clear_channel_cache(channel_id)
+        
+        if success:
+            print(f"🗑️  Cleared cache for channel {channel_id}")
+            return {
+                "success": True,
+                "message": "Channel cache cleared. Next fetch will be fresh from YouTube API."
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Channel not found in cache (nothing to clear)"
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/cache/stats")
+async def get_cache_stats(db: Session = Depends(get_db)):
+    """Get cache statistics"""
+    try:
+        db_service = DatabaseService(db)
+        video_stats = db_service.get_cache_stats()
+        
+        # Add channel stats
+        from database import ChannelCache
+        channel_count = db.query(ChannelCache).count()
+        
+        return {
+            **video_stats,
+            "total_channels": channel_count,
+            "cache_info": {
+                "video_cache_ttl": "永久 (permanent)",
+                "channel_cache_ttl": "24 hours",
+                "database_type": "PostgreSQL" if "postgresql" in os.getenv("DATABASE_URL", "") else "SQLite"
+            }
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

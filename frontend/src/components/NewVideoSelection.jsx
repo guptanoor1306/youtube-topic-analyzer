@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Play, Clock, Eye, Loader2 } from 'lucide-react'
+import { ChevronLeft, Play, Clock, Eye, Loader2, RefreshCw } from 'lucide-react'
+import axios from 'axios'
+import { API_BASE_URL } from '../config'
 
 const NewVideoSelection = ({ appState, setAppState }) => {
   const navigate = useNavigate()
   const [selectedVideos, setSelectedVideos] = useState([])
   const [filter, setFilter] = useState('all') // all, latest, popular
   const [loading, setLoading] = useState(false)
+  const [clearingCache, setClearingCache] = useState(false)
 
   useEffect(() => {
     // Redirect if no channel selected
@@ -43,6 +46,53 @@ const NewVideoSelection = ({ appState, setAppState }) => {
     }))
 
     navigate('/template-runner')
+  }
+  
+  const handleClearCache = async () => {
+    if (!appState.primaryChannel?.id) return
+    
+    const confirmed = window.confirm(
+      '🔄 Clear channel cache?\n\n' +
+      'This will:\n' +
+      '• Remove cached channel data\n' +
+      '• Force fresh fetch from YouTube API\n' +
+      '• May take 5-10 seconds\n\n' +
+      'Continue?'
+    )
+    
+    if (!confirmed) return
+    
+    try {
+      setClearingCache(true)
+      
+      // Clear cache
+      await axios.post(`${API_BASE_URL}/api/cache/clear`, null, {
+        params: { channel_id: appState.primaryChannel.id }
+      })
+      
+      // Re-fetch channel data
+      const setupResponse = await axios.post(`${API_BASE_URL}/api/channel/setup`, {
+        channel_id: appState.primaryChannel.id,
+        max_videos: 100
+      })
+      
+      // Update app state with fresh data
+      setAppState(prev => ({
+        ...prev,
+        primaryChannel: setupResponse.data.channel,
+        availableVideos: setupResponse.data.recent_videos
+      }))
+      
+      // Reset selections
+      setSelectedVideos([])
+      
+      alert('✅ Cache cleared and data refreshed!')
+    } catch (error) {
+      console.error('Clear cache error:', error)
+      alert('Failed to clear cache: ' + (error.response?.data?.detail || error.message))
+    } finally {
+      setClearingCache(false)
+    }
   }
 
   const getFilteredVideos = () => {
@@ -96,17 +146,32 @@ const NewVideoSelection = ({ appState, setAppState }) => {
                 </h1>
                 <p className="text-sm text-gray-500">
                   {filteredVideos.length} videos • {selectedVideos.length} selected
+                  {appState.primaryChannel.from_cache && (
+                    <span className="ml-2 text-green-600">• Cached</span>
+                  )}
                 </p>
               </div>
             </div>
             
-            <button
-              onClick={handleContinue}
-              disabled={selectedVideos.length === 0}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              Continue with {selectedVideos.length} video{selectedVideos.length !== 1 ? 's' : ''}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleClearCache}
+                disabled={clearingCache}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Clear cache and refresh from YouTube"
+              >
+                <RefreshCw className={`w-4 h-4 ${clearingCache ? 'animate-spin' : ''}`} />
+                {clearingCache ? 'Refreshing...' : 'Clear Cache'}
+              </button>
+              
+              <button
+                onClick={handleContinue}
+                disabled={selectedVideos.length === 0}
+                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                Continue with {selectedVideos.length} video{selectedVideos.length !== 1 ? 's' : ''}
+              </button>
+            </div>
           </div>
         </div>
       </div>
